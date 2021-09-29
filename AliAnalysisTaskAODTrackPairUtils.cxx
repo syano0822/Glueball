@@ -270,6 +270,21 @@ bool AliAnalysisTaskAODTrackPairUtils::isAcceptTrackPair(AliAODTrack* track1, Al
   return true;
 }
 
+bool AliAnalysisTaskAODTrackPairUtils::isAcceptV0Pair(AliAODv0* v0_1,AliAODv0* v0_2)
+{      
+  
+  AliAODTrack *pTrack1=(AliAODTrack *)v0_1->GetDaughter(0); //0->Positive Daughter
+  AliAODTrack *nTrack1=(AliAODTrack *)v0_1->GetDaughter(1); //1->Negative Daughter
+
+  AliAODTrack *pTrack2=(AliAODTrack *)v0_2->GetDaughter(0); //0->Positive Daughter
+  AliAODTrack *nTrack2=(AliAODTrack *)v0_2->GetDaughter(1); //1->Negative Daughter
+  
+  cout<<pTrack1->Pt()<<"   "<<nTrack1->Pt()<<"   "<<pTrack2->Pt()<<"   "<<nTrack2->Pt()<<endl;
+  
+
+  return true;
+}
+
 bool AliAnalysisTaskAODTrackPairUtils::isAcceptK0sTrackPair(AliAODv0* v0)
 {      
 

@@ -180,6 +180,7 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
       if(runPeriod.Contains("woSDD")) plugin->SetDataPattern("/pass1_CENT_woSDD/AOD234/ AliAOD.root");
       else                            plugin->SetDataPattern("/pass1_FAST/AOD234/ AliAOD.root");      
       plugin->SetSplitMaxInputFileNumber(40);
+      //plugin->SetSplitMaxInputFileNumber(1);
     }
     else if (runPeriod.Contains("LHC17q")){
       plugin->SetGridDataDir("/alice/data/2017/LHC17q");    

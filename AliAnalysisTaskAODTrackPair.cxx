@@ -148,16 +148,21 @@ void AliAnalysisTaskAODTrackPair::UserCreateOutputObjects()
     fEventCounter->GetXaxis()->SetBinLabel(iname+1,event_label[iname].c_str());
   fOutputList->Add(fEventCounter);
 
-  const Int_t binnum_Cent            = 3;
-  Int_t bins_Cent[binnum_Cent]       = {200,100,binnum_cent_hist};
-  double minbins_Cent[binnum_Cent] = {0.4,0,0};
-  double maxbins_Cent[binnum_Cent] = {0.6,10,100};
-  TString  namebins_Cent[]        = {"mass","rap","pt","centrality"};
+  const Int_t binnum_K0s            = 3;
+  Int_t bins_K0s[binnum_K0s]       = {200,100,binnum_cent_hist};
+  double minbins_K0s[binnum_K0s] = {0.4,0,0};
+  double maxbins_K0s[binnum_K0s] = {0.6,10,100};
+  TString  namebins_K0s[]        = {"mass","pt","centrality"};
 
-  fSparseK0s = new THnSparseF("fSparseK0s","",binnum_Cent,bins_Cent,minbins_Cent,maxbins_Cent);
-  fSparseK0sK0s = new THnSparseF("fSparseK0sK0s","",binnum_Cent,bins_Cent,minbins_Cent,maxbins_Cent);
-  
+  fSparseK0s = new THnSparseF("fSparseK0s","",binnum_K0s,bins_K0s,minbins_K0s,maxbins_K0s);
   fOutputList->Add(fSparseK0s);
+
+  const Int_t binnum_K0sK0s            = 3;
+  Int_t bins_K0sK0s[binnum_K0sK0s]       = {1500,100,binnum_cent_hist};
+  double minbins_K0sK0s[binnum_K0sK0s] = {1.0,0,0};
+  double maxbins_K0sK0s[binnum_K0sK0s] = {2.5,10,100};
+  TString  namebins_K0sK0s[]        = {"mass","pt","centrality"};
+  fSparseK0sK0s = new THnSparseF("fSparseK0sK0s","",binnum_K0sK0s,bins_K0sK0s,minbins_K0sK0s,maxbins_K0sK0s);
   fOutputList->Add(fSparseK0sK0s);
 
   PostData(1, fOutputList);    
@@ -266,15 +271,17 @@ bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
     fSparseK0s->Fill(fill_1);
     
     if( !fUtils->isK0sCandidate(v0_1->MassK0Short()) ) continue;
-
+    
     for(int jV0=iV0+1; jV0<nV0Pair; ++jV0){
     
       AliAODv0 *v0_2 = fEvent->GetV0(jV0);
-
+    
       if(!fUtils->isAcceptK0sTrackPair(v0_2)) continue;
       
       if( !fUtils->isK0sCandidate(v0_2->MassK0Short()) ) continue;
-            
+      
+      fUtils->isAcceptV0Pair(v0_1,v0_2);
+
       TLorentzVector k1;
       TLorentzVector k2;
       
@@ -282,10 +289,10 @@ bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
       k2.SetPtEtaPhiM(v0_2->Pt(),v0_2->Eta(),v0_2->Phi(),fUtils->fMassK0s);
       
       TLorentzVector k12 = k1 + k2;
-
+      
       double fill_12[]={k12.M(),k12.Pt(),fUtils->getCentClass()};
+      fSparseK0sK0s->Fill(fill_12);
 
-      fSparseK0s->Fill(fill_12);
   
     }
 

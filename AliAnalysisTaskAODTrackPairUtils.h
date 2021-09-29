@@ -24,6 +24,7 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   bool isAcceptTrackQuality(AliAODTrack* track);
   bool isAcceptPid(AliAODTrack* track, AliPID::EParticleType pid);
   bool isAcceptTrackPair(AliAODTrack* track1, AliAODTrack* track2);
+  bool isAcceptV0Pair(AliAODv0* v0_1,AliAODv0* v0_2);
   bool isAcceptK0sTrackPair(AliAODv0* v0);
   bool isK0sCandidate(float mass);
 
