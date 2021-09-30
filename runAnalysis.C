@@ -92,45 +92,42 @@ void runAnalysis(TString runPeriod = "LHC16k",
   gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
   AliAnalysisTaskPIDResponse* taskPID = AddTaskPIDResponse(isMC,false,true,1);
   
-
-  float min_vtxz =-10;
-  float max_vtxz = 10;
-
-  float min_pair_rap = -4.0;
-  float max_pair_rap = -2.5;
-
-  string multi_method="SPDTracklets";
-
-  bool onPURej = true;
-  bool onLBcut = true;
-
   gROOT->LoadMacro("./AliAnalysisTaskAODTrackPairUtils.cxx++g");
   gROOT->LoadMacro("./AliAnalysisTaskAODTrackPair.cxx++g");
   gROOT->LoadMacro("./AddTaskAODTrackPair.C");
 
+  
   /*
-    UInt_t offlineTriggerMask = AliVEvent::kAny,
-    float min_vtxz =-10,
-    float max_vtxz = 10,
-    float min_pair_rap = -4.0,
-    float max_pair_rap = -2.5,
-    string multi_method="SPDTracklets",
-    bool onPURej = true,
-    bool onLBcut = true,
-    bool onMuEtaCut = true,
-    bool onMuThetaAbsCut = true,
-    bool onMuMatchAptCut = true,
-    bool onMuMatchLptCut = true,
-    bool onMuMatchHptCut = true,
-    bool onMuChi2Cut = true,
-    bool onMuPdcaCut = true,
-    bool isMC=false)
+  AliAnalysisTaskAODTrackPair* trackpair = AddTaskAODTrackPair(AliVEvent::kINT7,
+							       -10,
+							       10,
+							       -0.5,
+							       0.5,
+							       70,
+							       0.15,
+							       999.
+							       -0.8,
+							       0.8,
+							       -2,2,
+							       -2,2,
+							       -2,2,
+							       -2,2,
+							       -2,2,
+							       -2,2,
+							       0.5,200.,
+							       0.06,999.,
+							       0.06,999.,
+							       0.97,1.00,
+							       1.109,1.121,
+							       2.0,2.0,2.0,
+							       "V0M",
+							       1,
+							       0);
   */
-  //AliAnalysisTaskAODEventStudy* qa = AddTaskAODEventQA(AliVEvent::kMuonSingleLowPt7 | AliVEvent::kMuonUnlikeLowPt7 | AliVEvent::kMuonLikeLowPt7 | AliVEvent::kINT7inMUON,-10,10,-4.0,-2.5,"SPDTracklets",1,1,1,1,0,0,0,1,1,isMC);  
-  //(UInt_t offlineTriggerMask = AliVEvent::kINT7,float min_vtxz =-10,float max_vtxz = 10,float min_pair_rap = -0.5,float max_pair_rap =  0.5,string multi_method="SPDTracklets",bool onPURej = true,bool isMC=false)
 
-  AliAnalysisTaskAODTrackPair* trackpair = AddTaskAODTrackPair(AliVEvent::kINT7,-10,10,-0.5,0.5,"V0M",1,0);
-    
+  AliAnalysisTaskAODTrackPair* trackpair = AddTaskAODTrackPair();
+
+
   // -----------------------------------------
   //               Add Task V0Reader
   // -----------------------------------------  
@@ -187,6 +184,7 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
       if(runPeriod.Contains("woSDD")) plugin->SetDataPattern("/pass1_CENT_woSDD/AOD234/ AliAOD.root");
       else                         plugin->SetDataPattern("/pass1_FAST/AOD234/ AliAOD.root");      
       plugin->SetSplitMaxInputFileNumber(40);
+      //plugin->SetSplitMaxInputFileNumber(1);
     }
     plugin->SetRunPrefix("000");    
   }

@@ -25,7 +25,7 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   bool isAcceptPid(AliAODTrack* track, AliPID::EParticleType pid);
   bool isAcceptTrackPair(AliAODTrack* track1, AliAODTrack* track2);
   bool isAcceptV0Pair(AliAODv0* v0_1,AliAODv0* v0_2);
-  bool isAcceptK0sTrackPair(AliAODv0* v0);
+  bool isAcceptV0asK0s(AliAODv0* v0);
   bool isK0sCandidate(float mass);
 
   bool isMC(){
@@ -62,7 +62,21 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
     fMinPionSigmaTOF = min;
     fMaxPionSigmaTOF = max;
   }
+  void setMinTPCCrossRows(float cross)
+  {
+    fMinCrossRows = cross;
+  }
 
+  void setTrackChi2perNDF(float max){
+    fMaxTrackChi2perNDF = max;
+  }
+  void setTrackKinematicRange(float minpt,float maxpt,float mineta, float maxeta)
+  {
+    fMinTrackPt = minpt;
+    fMaxTrackPt = maxpt;
+    fMinTrackEta = mineta;
+    fMaxTrackEta = maxeta;
+  }
   void setKaonSelectSigmaTPC(float min, float max)
   {
     fMinKaonSigmaTPC = min;
@@ -72,8 +86,7 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   {
     fMinKaonSigmaTOF = min;
     fMaxKaonSigmaTOF = max;
-  }
-  
+  }  
   void setProtonSelectSigmaTPC(float min, float max)
   {
     fMinProtonSigmaTPC = min;
@@ -84,29 +97,43 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
     fMinProtonSigmaTOF = min;
     fMaxProtonSigmaTOF = max;
   }
-  
-  void setMinV0Radius(float min)
+  void setPropLifeTime(float min, float max)
+  {
+    fMinPropLifetime = min;
+    fMaxPropLifetime = max;
+  }
+  void setMinV0Radius(float min,float max)
   {
     fMinV0Radius = min;
+    fMaxV0Radius = max;
   }
-  void setMinV0PosTrackDCA(float min)
+  void setMinV0PosTrackDCA(float min,float max)
   {
     fMinPosDCA = min;
+    fMaxPosDCA = max;
   }
-  void setMinV0NegTrackDCA(float min)
+  void setMinV0NegTrackDCA(float min,float max)
   {
     fMinNegDCA = min;
+    fMaxNegDCA = max;
   }
-  void setMinV0CosPoint(float min)
+  void setMinV0CosPoint(float min,float max)
   {
     fMinCosPoint = min;
+    fMaxCosPoint = max;
   }
   void setRejLambdaMassRange(float min, float max)
   {
     fMinRejLambdaMass=min;
     fMaxRejLambdaMass=max;
   }
-
+  void setTPCTOFCombPID(float pion, float kaon, float proton)
+  {
+    fOnTPCTOFCombPID = true;
+    fPionSigmaCombSigma = pion;
+    fKaonSigmaCombSigma = kaon;
+    fProtonSigmaCombSigma = proton;
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   //Set analysis object
@@ -188,6 +215,18 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
       return 0;
   }
   
+  float getTPCsigma(AliAODTrack* track, AliPID::EParticleType pid)
+  {
+    if(!track || !fPIDResponse) return -999;
+    return fPIDResponse->NumberOfSigmasTPC(track, pid);
+  }
+  float getTOFsigma(AliAODTrack* track, AliPID::EParticleType pid)
+  {
+    if(!track || !fPIDResponse) return -999;
+    return fPIDResponse->NumberOfSigmasTOF(track, pid);
+  }
+  
+
   void setInit();
   bool isSameRunnumber();
   bool setVtxZCentPsi();
@@ -214,20 +253,34 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   float fMaxPairRapCut;
   
   bool fIsPUcut;  
-  
+
+  float fMaxTrackChi2perNDF;
+  float fMinCrossRows;
   float fMinTrackPt;
+  float fMaxTrackPt;
   float fMinTrackEta;
   float fMaxTrackEta;
 
   float fMinMassK0sCand;
   float fMaxMassK0sCand;
 
+  float fMinPropLifetime;
+  float fMaxPropLifetime;  
   float fMinV0Radius;
+  float fMaxV0Radius;
   float fMinPosDCA;
+  float fMaxPosDCA;
   float fMinNegDCA;
+  float fMaxNegDCA;
   float fMinCosPoint;
+  float fMaxCosPoint;
   float fMaxRejLambdaMass;
   float fMinRejLambdaMass;
+
+  bool fOnTPCTOFCombPID;
+  float fPionSigmaCombSigma;
+  float fKaonSigmaCombSigma;
+  float fProtonSigmaCombSigma;
 
   float fMinPionSigmaTPC;
   float fMaxPionSigmaTPC;

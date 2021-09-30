@@ -61,7 +61,8 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   AliAnalysisTaskAODTrackPair& operator=(const AliAnalysisTaskAODTrackPair&); // not implemented
   
   bool Initialize();
-  bool V0TrackPairAnalysis();
+  bool TrackQA();
+  bool V0TrackPairAnalysis();  
   bool TrackPairAnalysisEveMixing();  
   
   AliEventPool* setPool();
@@ -90,9 +91,30 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   ////////////////////////////////////////////////
 
   TList* fOutputList;
-  TH2F* fEventCounter;
+  
+  TH1F* fEventCounter;
+  
   THnSparse* fSparseK0s;
   THnSparse* fSparseK0sK0s;
+  
+  TH2F* fHistMomTPCSignalTrackQuality;
+  TH2F* fHistMomTOFBetaTrackQuality;
+  TH2F* fHistMomTPCSignalTrackQualityPionPID;
+  TH2F* fHistMomTOFBetaTrackQualityPionPID;
+  TH2F* fHistMomTPCSignalTrackQualityKaonPID;
+  TH2F* fHistMomTOFBetaTrackQualityKaonPID;
+  TH2F* fHistMomTPCSignalTrackQualityProtonPID;
+  TH2F* fHistMomTOFBetaTrackQualityProtonPID;
+
+  TH2F* fHistMomTPCSigmaTrackQuality;
+  TH2F* fHistMomTOFSigmaTrackQuality;
+  TH2F* fHistMomTPCSigmaTrackQualityPionPID;
+  TH2F* fHistMomTOFSigmaTrackQualityPionPID;
+  TH2F* fHistMomTPCSigmaTrackQualityKaonPID;
+  TH2F* fHistMomTOFSigmaTrackQualityKaonPID;
+  TH2F* fHistMomTPCSigmaTrackQualityProtonPID;
+  TH2F* fHistMomTOFSigmaTrackQualityProtonPID;
+
   
   ClassDef(AliAnalysisTaskAODTrackPair, 1); // example of analysis
 };
