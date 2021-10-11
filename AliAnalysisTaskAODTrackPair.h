@@ -17,6 +17,10 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   virtual void   UserExec(Option_t *option);
   
   void setMC(bool isMC){fIsMC = isMC;}
+  void setKaonAnalysis(bool flag){fOnKaonAna = flag;}
+  void setPionAnalysis(bool flag){fOnPionAna = flag;}
+  void setK0sAnalysis(bool flag){fOnK0sAna = flag;}
+  void setTrackQA(bool flag){fOnTrackQA = flag;}
   
   void setUtils(AliAnalysisTaskAODTrackPairUtils *utils)
   {
@@ -61,18 +65,27 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   AliAnalysisTaskAODTrackPair& operator=(const AliAnalysisTaskAODTrackPair&); // not implemented
   
   bool Initialize();
-  bool TrackQA();
+  bool TrackQA(AliAODTrack *track);
   bool V0TrackPairAnalysis();  
-  bool TrackPairAnalysisEveMixing();  
+  bool PrimeTrackPairAnalysis();  
   
-  AliEventPool* setPool();
+  AliEventPool* setPool(int id);
   
   AliAODEvent    *fEvent;  
-  AliEventPoolManager *fPoolTrackMgr;
+  
+  AliEventPoolManager *fPoolKaonTrackMgr;
+  AliEventPoolManager *fPoolPionTrackMgr;
+  AliEventPoolManager *fPoolK0sMgr;
+  
   AliAnalysisTaskAODTrackPairUtils* fUtils;
   TClonesArray   *fMCTrackArray;
   
   bool fIsMC;  
+  bool fOnKaonAna;
+  bool fOnPionAna;
+  bool fOnK0sAna;
+  bool fOnTrackQA;
+
   int fRunNumber;
   int fTrackDepth;
   int fPoolSize;
@@ -93,10 +106,69 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   TList* fOutputList;
   
   TH1F* fEventCounter;
+
+  TH2F* fHistArmenterosPodolanskiPlot; 
+  TH2F* fHistArmenterosPodolanskiPlot_K0s; 
   
-  THnSparse* fSparseK0s;
-  THnSparse* fSparseK0sK0s;
+  TH2F* fHistULSKKPairMassPt;
+  TH2F* fHistLSppKKPairMassPt;
+  TH2F* fHistLSmmKKPairMassPt;
+
+  TH2F* fHistMixULSKKPairMassPt;
+  TH2F* fHistMixLSppKKPairMassPt;
+  TH2F* fHistMixLSmmKKPairMassPt;
+
+  TH2F* fHistULSPiPiPairMassPt;
+  TH2F* fHistLSppPiPiPairMassPt;
+  TH2F* fHistLSmmPiPiPairMassPt;
+
+  TH2F* fHistMixULSPiPiPairMassPt;
+  TH2F* fHistMixLSppPiPiPairMassPt;
+  TH2F* fHistMixLSmmPiPiPairMassPt;
+
+  TH2F* fHistULSKKPairMassPt_PionID;
+  TH2F* fHistLSppKKPairMassPt_PionID;
+  TH2F* fHistLSmmKKPairMassPt_PionID;
+
+  TH2F* fHistMixULSKKPairMassPt_PionID;
+  TH2F* fHistMixLSppKKPairMassPt_PionID;
+  TH2F* fHistMixLSmmKKPairMassPt_PionID;
   
+  TH2F* fHistK0sMassPt;
+  TH2F* fHistK0sK0sMassPt;
+  TH2F* fHistMixK0sK0sMassPt;
+  
+
+  TH2F* fHistPrimaryTrackNSPDCluster;
+  TH2F* fHistPrimaryTrackNITSCluster;
+  TH2F* fHistPrimaryTrackNTPCCluster;
+  TH2F* fHistPrimaryTrackEta;
+  TH2F* fHistPrimaryTrackChi2perNDF;
+  TH2F* fHistPrimaryTrackITSChi2perNDF;
+  TH2F* fHistPrimaryTrackTPCChi2perNDF;
+  TH2F* fHistPrimaryTrackTPCCrossRaws;
+  TH2F* fHistPrimaryTrackTPCFindableCrossRaws;
+  TH2F* fHistPrimaryTrackTPCCrossRawsOverFindable;
+  TH2F* fHistPrimaryTrackTOFBunchCrossing;
+  TH2F* fHistPrimaryTrackKinkIndex;
+  TH2F* fHistPrimaryTrackDCAxy;
+  TH2F* fHistPrimaryTrackDCAz;
+
+  TH2F* fHistPrimaryTrackNSPDClusterQuality;
+  TH2F* fHistPrimaryTrackNITSClusterQuality;
+  TH2F* fHistPrimaryTrackNTPCClusterQuality;
+  TH2F* fHistPrimaryTrackEtaQuality;
+  TH2F* fHistPrimaryTrackChi2perNDFQuality;
+  TH2F* fHistPrimaryTrackITSChi2perNDFQuality;
+  TH2F* fHistPrimaryTrackTPCChi2perNDFQuality;
+  TH2F* fHistPrimaryTrackTPCCrossRawsQuality;
+  TH2F* fHistPrimaryTrackTPCFindableCrossRawsQuality;
+  TH2F* fHistPrimaryTrackTPCCrossRawsOverFindableQuality;
+  TH2F* fHistPrimaryTrackTOFBunchCrossingQuality;
+  TH2F* fHistPrimaryTrackKinkIndexQuality;
+  TH2F* fHistPrimaryTrackDCAxyQuality;
+  TH2F* fHistPrimaryTrackDCAzQuality;
+
   TH2F* fHistMomTPCSignalTrackQuality;
   TH2F* fHistMomTOFBetaTrackQuality;
   TH2F* fHistMomTPCSignalTrackQualityPionPID;
@@ -105,7 +177,7 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   TH2F* fHistMomTOFBetaTrackQualityKaonPID;
   TH2F* fHistMomTPCSignalTrackQualityProtonPID;
   TH2F* fHistMomTOFBetaTrackQualityProtonPID;
-
+  
   TH2F* fHistMomTPCSigmaTrackQuality;
   TH2F* fHistMomTOFSigmaTrackQuality;
   TH2F* fHistMomTPCSigmaTrackQualityPionPID;

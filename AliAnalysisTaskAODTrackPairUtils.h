@@ -15,22 +15,32 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   AliAnalysisTaskAODTrackPairUtils();
   ~AliAnalysisTaskAODTrackPairUtils();
 
+  
   bool setEvent(AliAODEvent* event, AliVEventHandler* handler);
-
+  bool setMCArray(TClonesArray* array){fMCArray = array;}
+  
   void setMC(bool isMC){fIsMC = isMC;}
   
   bool isAcceptEvent();
-  bool isAcceptTrack(AliAODTrack* track, AliPID::EParticleType pid);
-  bool isAcceptTrackQuality(AliAODTrack* track);
+  bool isAcceptPrimeTrack(AliAODTrack* track, AliPID::EParticleType pid);
+  bool isAcceptV0Track(AliAODTrack* track, AliPID::EParticleType pid);
+  bool isAcceptTrackKinematics(AliAODTrack* track);
+  bool isAcceptPrimeTrackQuality(AliAODTrack* track);
+  bool isAcceptV0TrackQuality(AliAODTrack* track);
   bool isAcceptPid(AliAODTrack* track, AliPID::EParticleType pid);
-  bool isAcceptTrackPair(AliAODTrack* track1, AliAODTrack* track2);
+  bool isAcceptTrackPair(float rap, float pt);
   bool isAcceptV0Pair(AliAODv0* v0_1,AliAODv0* v0_2);
-  bool isAcceptV0asK0s(AliAODv0* v0);
+  bool isAcceptDefaultV0(AliAODv0* v0);
   bool isK0sCandidate(float mass);
+  bool isK0sV0(AliAODv0 *v0);
+  bool isSameMother(AliAODTrack* track1,AliAODTrack* track2);
+  
+  bool hasTOF(AliAODTrack* track);
 
   bool isMC(){
     return fIsMC;
   }
+  
   //////////////////////////////////////////////////////////////////////////////////////////////
   //Set analysis cut flags
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,8 +60,7 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   void setPileupRejectionCut(bool flag)
   {
     fIsPUcut = flag;
-  }
-  
+  }  
   void setPionSelectSigmaTPC(float min, float max)
   {
     fMinPionSigmaTPC = min;
@@ -62,13 +71,42 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
     fMinPionSigmaTOF = min;
     fMaxPionSigmaTOF = max;
   }
+  void setMinNClustTPC(float min)
+  {
+    fMinNClustTPC = min;
+  }
   void setMinTPCCrossRows(float cross)
   {
     fMinCrossRows = cross;
   }
-
+  void setMinFindableTPCclsFrac(float min)
+  {
+    fMinFindableTPCclsFraction = min;
+  }
   void setTrackChi2perNDF(float max){
     fMaxTrackChi2perNDF = max;
+  }
+  void setTPCTrackChi2perNDF(float max){
+    fMaxTPCTrackChi2perNDF = max;
+  }
+  void setITSTrackChi2perNDF(float max){
+    fMaxITSTrackChi2perNDF = max;
+  }
+
+  void setPrimeTrackDCAFunction(std::string func)
+  {
+    fPrimeTrackDCAFunc = new TF1("fPrimeTrackDCAFunc",func.c_str(),0,1000);
+  }
+  void setPrimeTrackFilterBit(int bit)
+  {
+    fPrimeTrackFilterBit = bit;
+  }
+  void setPromenterosLimit(double pcm, double r0, double width){
+    double e = 0.0001;
+    fMinArmenterosLine = new TF1("fMinArmenterosLine","[0]*pow(1-pow(x/[1],2),1./2.)*sqrt(1.-[2])",-r0+e,r0-e);
+    fMinArmenterosLine->SetParameters(pcm,r0,width);
+    fMaxArmenterosLine = new TF1("fMaxArmenterosLine","[0]*pow(1-pow(x/[1],2),1./2.)*sqrt(1.+[2])",-r0+e,r0-e);
+    fMaxArmenterosLine->SetParameters(pcm,r0,width);
   }
   void setTrackKinematicRange(float minpt,float maxpt,float mineta, float maxeta)
   {
@@ -107,6 +145,12 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
     fMinV0Radius = min;
     fMaxV0Radius = max;
   }
+  void setV0TrackDCA(float min, float max)
+  {
+    fMinV0TrackDCA = min;
+    fMaxV0TrackDCA = max;
+  }
+
   void setMinV0PosTrackDCA(float min,float max)
   {
     fMinPosDCA = min;
@@ -134,6 +178,10 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
     fKaonSigmaCombSigma = kaon;
     fProtonSigmaCombSigma = proton;
   }
+  void setRequireTOFhit(bool flag)
+  {
+    fRequireTOFhit = flag;
+  } 
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   //Set analysis object
@@ -226,7 +274,7 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
     return fPIDResponse->NumberOfSigmasTOF(track, pid);
   }
   
-
+  void Initialization();
   void setInit();
   bool isSameRunnumber();
   bool setVtxZCentPsi();
@@ -239,6 +287,7 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   AliMultSelection* fMultSelection;  
   AliVEventHandler* fInputHandler;
   AliPIDResponse* fPIDResponse;
+  TClonesArray* fMCArray;
 
   int fRunNumber;
   
@@ -253,9 +302,15 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   float fMaxPairRapCut;
   
   bool fIsPUcut;  
-
+  
+  int fPrimeTrackFilterBit;
+  TF1* fPrimeTrackDCAFunc;
   float fMaxTrackChi2perNDF;
+  float fMaxTPCTrackChi2perNDF;
+  float fMaxITSTrackChi2perNDF;
   float fMinCrossRows;
+  float fMinNClustTPC;
+  float fMinFindableTPCclsFraction;
   float fMinTrackPt;
   float fMaxTrackPt;
   float fMinTrackEta;
@@ -263,11 +318,13 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
 
   float fMinMassK0sCand;
   float fMaxMassK0sCand;
-
+  
   float fMinPropLifetime;
   float fMaxPropLifetime;  
   float fMinV0Radius;
   float fMaxV0Radius;
+  float fMinV0TrackDCA;
+  float fMaxV0TrackDCA;
   float fMinPosDCA;
   float fMaxPosDCA;
   float fMinNegDCA;
@@ -277,6 +334,7 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   float fMaxRejLambdaMass;
   float fMinRejLambdaMass;
 
+  bool fRequireTOFhit;
   bool fOnTPCTOFCombPID;
   float fPionSigmaCombSigma;
   float fKaonSigmaCombSigma;
@@ -325,6 +383,12 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   float fTimeV0C;
 
   float fMassK0s = 0.497614;
+  float fMassKaon = 0.493677;
+  float fMassPion = 0.13957061;
+
+  TF1* fMinArmenterosLine;
+  TF1* fMaxArmenterosLine;
+  double fArmenterosBandWidth;
 
   ClassDef(AliAnalysisTaskAODTrackPairUtils, 1); // example of analysis
 };

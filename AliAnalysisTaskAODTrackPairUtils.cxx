@@ -27,18 +27,25 @@ AliAnalysisTaskAODTrackPairUtils::AliAnalysisTaskAODTrackPairUtils() : TNamed(),
   fMultSelection(NULL),
   fPIDResponse(NULL),
   fInputHandler(NULL),
+  fMCArray(NULL),
   fRunNumber(-99999),
   fIsMC(false),
   fIsVtxZcut(true),
   fMaxVertexCutZ(-10),
   fMinVertexCutZ(10),
   fIsPairRapCut(true),
-  fMinPairRapCut(-4.0),
-  fMaxPairRapCut(-2.5),
+  fMinPairRapCut(0.5),
+  fMaxPairRapCut(-0.5),
   fIsPUcut(true),
-  
-  fMaxTrackChi2perNDF(5),
+
+  fPrimeTrackDCAFunc(NULL),
+  fPrimeTrackFilterBit(5),
+  fMaxTrackChi2perNDF(4.),
+  fMaxITSTrackChi2perNDF(36.),
+  fMaxTPCTrackChi2perNDF(5.),
+  fMinFindableTPCclsFraction(0.8),
   fMinCrossRows(70),
+  fMinNClustTPC(70),
   fMinTrackPt(0.15),
   fMaxTrackPt(999.),
   fMinTrackEta(-0.8),
@@ -51,6 +58,8 @@ AliAnalysisTaskAODTrackPairUtils::AliAnalysisTaskAODTrackPairUtils() : TNamed(),
   fMaxPropLifetime(20.0),
   fMinV0Radius(0.5),
   fMaxV0Radius(999.),
+  fMinV0TrackDCA(0.06),
+  fMaxV0TrackDCA(999.),
   fMinPosDCA(0.06),
   fMaxPosDCA(999.),
   fMinNegDCA(0.06),
@@ -59,7 +68,8 @@ AliAnalysisTaskAODTrackPairUtils::AliAnalysisTaskAODTrackPairUtils() : TNamed(),
   fMaxCosPoint(1.00),
   fMinRejLambdaMass(1.105),
   fMaxRejLambdaMass(1.1255),
-
+  
+  fRequireTOFhit(false),
   fOnTPCTOFCombPID(true),
   fPionSigmaCombSigma(2.),
   fKaonSigmaCombSigma(2.),
@@ -105,10 +115,13 @@ AliAnalysisTaskAODTrackPairUtils::AliAnalysisTaskAODTrackPairUtils() : TNamed(),
   fChV0C(0.),
   fChV0M(0.),
   fTimeV0A(0.),
-  fTimeV0C(0.)
+  fTimeV0C(0.),
+  
+  fArmenterosBandWidth(0.05),
+  fMinArmenterosLine(NULL),
+  fMaxArmenterosLine(NULL)
 {
-
-  cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+  
 }
 
 AliAnalysisTaskAODTrackPairUtils::~AliAnalysisTaskAODTrackPairUtils()
@@ -116,6 +129,52 @@ AliAnalysisTaskAODTrackPairUtils::~AliAnalysisTaskAODTrackPairUtils()
  
   
  
+}
+
+void AliAnalysisTaskAODTrackPairUtils::Initialization()
+{
+  cout<<"================================================================================"<<endl;
+  cout<<"================================================================================"<<endl;
+  cout<<"                               CONFIGURATION PARAMS                             "<<endl;
+  cout<<"================================================================================"<<endl;
+  cout<<"================================================================================"<<endl;
+  cout<<endl;
+  cout<<endl;
+  cout<<"fMaxVertexCutZ:        "<<fMaxVertexCutZ<<endl;
+  cout<<"fMinVertexCutZ:        "<<fMinVertexCutZ<<endl;
+  cout<<"fMinPairRapCut:        "<<fMinPairRapCut<<endl;
+  cout<<"fMaxPairRapCut:        "<<fMaxPairRapCut<<endl;  
+  cout<<"fMaxTrackChi2perNDF:   "<<fMaxTrackChi2perNDF<<endl;
+  cout<<"fMinCrossRows:         "<<fMinCrossRows<<endl;
+  cout<<"fMinTrackPt:           "<<fMinTrackPt<<endl;
+  cout<<"fMaxTrackPt:           "<<fMaxTrackPt<<endl;
+  cout<<"fMinTrackEta:          "<<fMinTrackEta<<endl;
+  cout<<"fMaxTrackEta:          "<<fMaxTrackEta<<endl;  
+  cout<<"fMinMassK0sCand:       "<<fMinMassK0sCand<<endl;
+  cout<<"fMaxMassK0sCand:       "<<fMaxMassK0sCand<<endl;  
+  cout<<"fMinPropLifetime:      "<<fMinPropLifetime<<endl;
+  cout<<"fMaxPropLifetime:      "<<fMaxPropLifetime<<endl;
+  cout<<"fMinV0Radius:          "<<fMinV0Radius<<endl;
+  cout<<"fMaxV0Radius:          "<<fMaxV0Radius<<endl;
+  cout<<"fMinPosDCA:            "<<fMinPosDCA<<endl;
+  cout<<"fMaxPosDCA:            "<<fMaxPosDCA<<endl;
+  cout<<"fMinNegDCA:            "<<fMinNegDCA<<endl;
+  cout<<"fMaxNegDCA:            "<<fMaxNegDCA<<endl;
+  cout<<"fMinCosPoint:          "<<fMinCosPoint<<endl;
+  cout<<"fMaxCosPoint:          "<<fMaxCosPoint<<endl;
+  cout<<"fMinRejLambdaMass:     "<<fMinRejLambdaMass<<endl;
+  cout<<"fMaxRejLambdaMass:     "<<fMaxRejLambdaMass<<endl;  
+  cout<<"fPionSigmaCombSigma :  "<<fPionSigmaCombSigma<<endl;
+  cout<<"fKaonSigmaCombSigma:   "<<fKaonSigmaCombSigma<<endl;
+  cout<<"fProtonSigmaCombSigma: "<<fProtonSigmaCombSigma<<endl;  
+  cout<<"fMultiMethod:          "<<fMultiMethod<<endl;
+  cout<<endl;
+  cout<<endl;
+  cout<<"================================================================================"<<endl;
+  cout<<"================================================================================"<<endl;
+  cout<<"================================================================================"<<endl;
+  cout<<"================================================================================"<<endl;
+  cout<<"================================================================================"<<endl;  
 }
 
 void AliAnalysisTaskAODTrackPairUtils::setInit()
@@ -193,6 +252,7 @@ bool AliAnalysisTaskAODTrackPairUtils::isSameRunnumber()
   else return false;
 }
 
+
 bool AliAnalysisTaskAODTrackPairUtils::isAcceptEvent()
 {  
   
@@ -213,28 +273,73 @@ bool AliAnalysisTaskAODTrackPairUtils::isAcceptEvent()
   return true;
 }
 
-bool AliAnalysisTaskAODTrackPairUtils::isAcceptTrack(AliAODTrack* track,AliPID::EParticleType pid){  
+bool AliAnalysisTaskAODTrackPairUtils::isAcceptPrimeTrack(AliAODTrack* track,AliPID::EParticleType pid){  
   
-  if(!isAcceptTrackQuality(track)) return false;
+  if(!isAcceptPrimeTrackQuality(track)) return false;
   if(!isAcceptPid(track,pid)) return false;
 
   return true;
 }
 
-bool AliAnalysisTaskAODTrackPairUtils::isAcceptTrackQuality(AliAODTrack* track){  
+bool AliAnalysisTaskAODTrackPairUtils::isAcceptV0Track(AliAODTrack* track,AliPID::EParticleType pid){  
   
+  if(!isAcceptV0TrackQuality(track)) return false;
+  if(!isAcceptPid(track,pid)) return false;
+
+  return true;
+}
+
+bool AliAnalysisTaskAODTrackPairUtils::isAcceptTrackKinematics(AliAODTrack* track){  
   if(track->Pt()<fMinTrackPt || fMaxTrackPt<track->Pt()) return false;
-  if(track->Eta()<fMinTrackEta || fMaxTrackEta<track->Eta()) return false;
-  if(track->Chi2perNDF()>fMaxTrackChi2perNDF) return false;
+  if(track->Eta()<fMinTrackEta || fMaxTrackEta<track->Eta()) return false;  
+  return true;
+}
+
+bool AliAnalysisTaskAODTrackPairUtils::isAcceptPrimeTrackQuality(AliAODTrack* track){  
   
-  float crossedRows = track->GetTPCClusterInfo(2,1);
-
+  return track->TestFilterBit(AliAODTrack::kTrkGlobal) ? true : false;
+  /*
+  if( !track->HasPointOnITSLayer(0) && !track->HasPointOnITSLayer(1) ) return false;    
+  if( track->GetTPCNcls() < 1 ) return false;
+  if( !isAcceptTrackKinematics(track) ) return false;  
+  if( track->Chi2perNDF() > fMaxTrackChi2perNDF ) return false;
+  if( track->GetITSchi2()/track->GetITSNcls() > fMaxITSTrackChi2perNDF ) return false;
+  if( track->GetTPCchi2()/track->GetTPCNcls() > fMaxTPCTrackChi2perNDF ) return false;  
   if( !(track->GetStatus() & AliESDtrack::kTPCrefit)) return false;
-  if ( crossedRows < fMinCrossRows ) return false;  
-
+  if( !(track->GetStatus() & AliESDtrack::kITSrefit)) return false;  
+  if( track->GetTPCNcls() < fMinNClustTPC ) return false;  
   if( track->GetTPCNclsF()<=0 ) return false;
+  float crossedRows = track->GetTPCNCrossedRows();
   float crossedRowsOverFindable = crossedRows / ((double)(track->GetTPCNclsF()));
-  if( crossedRowsOverFindable< 0.8 ) return false;
+  if( crossedRowsOverFindable < fMinFindableTPCclsFraction ) return false;
+
+  if( fRequireTOFhit && track->GetTOFBunchCrossing()!=0 ) return false;
+  if( track->GetKinkIndex(0) > 0 ) return false;  
+
+  float max_dca = fPrimeTrackDCAFunc->Eval(track->Pt());  
+  float dca_xy=9999;
+  float dca_z=9999;
+  track->GetImpactParameters(dca_xy,dca_z);
+  float dca = sqrt(dca_xy*dca_xy + dca_z*dca_z);
+  
+  if( fabs(dca_xy)>max_dca ) return false;
+  if( fabs(dca_z) > 2.0 ) return false;
+  */
+  return true;
+}
+
+bool AliAnalysisTaskAODTrackPairUtils::isAcceptV0TrackQuality(AliAODTrack* track){  
+  
+  if( track->GetTPCNcls() < 1 ) return false;
+  if( !isAcceptTrackKinematics(track) ) return false; 
+  if( !(track->GetStatus() & AliESDtrack::kTPCrefit)) return false;
+  if( track->GetTPCClusterInfo(2,1) < fMinCrossRows ) return false;
+  if( track->GetTPCNclsF()<=0 ) return false;
+  float crossedRows = track->GetTPCNCrossedRows();
+  float crossedRowsOverFindable = crossedRows / ((double)(track->GetTPCNclsF()));
+  if( crossedRowsOverFindable < fMinFindableTPCclsFraction ) return false;
+
+  if( track->GetKinkIndex(0) > 0 ) return false;  
 
   bool hasITShit = false;  
   if( track->HasPointOnITSLayer(0) || track->HasPointOnITSLayer(1) ||
@@ -245,8 +350,7 @@ bool AliAnalysisTaskAODTrackPairUtils::isAcceptTrackQuality(AliAODTrack* track){
   if( track->GetTOFBunchCrossing()==0 ) hasTOFhit=true;
   
   if(!hasITShit && !hasTOFhit) return false;
-
-
+  
   return true;
 }
 
@@ -286,41 +390,22 @@ bool AliAnalysisTaskAODTrackPairUtils::isAcceptPid(AliAODTrack* track, AliPID::E
   float fSigmaTPC = fPIDResponse->NumberOfSigmasTPC(track, pid);
   float fSigmaTOF = fPIDResponse->NumberOfSigmasTOF(track, pid);
   
-  bool hasTOFhit = false;
-  if( track->GetTOFBunchCrossing()==0 ) hasTOFhit = true;
+  float fSigmaTPCTOF = sqrt(fSigmaTPC*fSigmaTPC + fSigmaTOF*fSigmaTOF);
   
-  if(hasTOFhit){
-      float fSigmaTPCTOF = sqrt(fSigmaTPC*fSigmaTPC + fSigmaTOF*fSigmaTOF);
-      if(fSigmaTPCTOF>sigmaRadiusComb) return false;
+  bool hasTOFhit = true;
+  
+  if( fabs(fSigmaTOF)>990 ) hasTOFhit = false;
+  
+  if(hasTOFhit){    
+    if(minSigmaRangeTPC<fSigmaTPC && fSigmaTPC<maxSigmaRangeTPC && minSigmaRangeTOF<fSigmaTOF && fSigmaTOF<maxSigmaRangeTOF) return true;
+    else return false;
   }
   else{
-    if(fabs(fSigmaTPC)>sigmaRadiusComb) return false;
+    if(minSigmaRangeTPC<fSigmaTPC && fSigmaTPC<maxSigmaRangeTPC) return true;
+    else return false;
   }
 
-  /*
-  if( fOnTPCTOFCombPID ){
-    if(hasTOFhit){
-      float fSigmaTPCTOF = sqrt(fSigmaTPC*fSigmaTPC + fSigmaTOF*fSigmaTOF);
-      if(fSigmaTPCTOF>sigmaRadiusComb) return false;
-    }
-    else{
-      if(fabs(fSigmaTPC)>sigmaRadiusComb) return false;
-    }
-  }
-  else{
-    if(hasTOFhit){
-      if(minSigmaRangeTPC>fSigmaTPC || fSigmaTPC>maxSigmaRangeTPC) return false;
-      if(minSigmaRangeTOF>fSigmaTOF || fSigmaTPC>maxSigmaRangeTOF) return false;    
-    }
-    else{
-      if(minSigmaRangeTPC>fSigmaTPC || fSigmaTPC>maxSigmaRangeTPC) return false;
-    }
-  }
-  */
-  
-  return true;
 }
-
 
 bool AliAnalysisTaskAODTrackPairUtils::isK0sCandidate(float mass){
   
@@ -331,24 +416,18 @@ bool AliAnalysisTaskAODTrackPairUtils::isK0sCandidate(float mass){
   return false;
 }
 
-bool AliAnalysisTaskAODTrackPairUtils::isAcceptTrackPair(AliAODTrack* track1, AliAODTrack* track2)
+bool AliAnalysisTaskAODTrackPairUtils::isAcceptTrackPair(float rap, float pt)
 {      
+  if(fMinPairRapCut>rap || rap<fMaxPairRapCut) return false;
   return true;
 }
 
 bool AliAnalysisTaskAODTrackPairUtils::isAcceptV0Pair(AliAODv0* v0_1,AliAODv0* v0_2)
 {      
-  /*
-  AliAODTrack *pTrack1=(AliAODTrack *)v0_1->GetDaughter(0);
-  AliAODTrack *nTrack1=(AliAODTrack *)v0_1->GetDaughter(1);
-
-  AliAODTrack *pTrack2=(AliAODTrack *)v0_2->GetDaughter(0);
-  AliAODTrack *nTrack2=(AliAODTrack *)v0_2->GetDaughter(1);
-  */
   return true;
 }
 
-bool AliAnalysisTaskAODTrackPairUtils::isAcceptV0asK0s(AliAODv0* v0)
+bool AliAnalysisTaskAODTrackPairUtils::isAcceptDefaultV0(AliAODv0* v0)
 {      
   
   if(!v0) return false;
@@ -356,45 +435,60 @@ bool AliAnalysisTaskAODTrackPairUtils::isAcceptV0asK0s(AliAODv0* v0)
   if(v0->GetNDaughters() != 2) return false;
   if(v0->GetNProngs() != 2) return false;
   if(v0->GetCharge() != 0) return false;
-
   if(v0->GetOnFlyStatus()) return false;
   
-  AliAODTrack *pTrack=(AliAODTrack *)v0->GetDaughter(0);
-  AliAODTrack *nTrack=(AliAODTrack *)v0->GetDaughter(1);  
-  if(!pTrack) return false;
-  if(!nTrack) return false;
-  
-  if(!isAcceptTrack(pTrack,AliPID::kPion)) return false;
-  if(!isAcceptTrack(nTrack,AliPID::kPion)) return false;
-
-  float DcaPosToPrimVertex = v0->DcaPosToPrimVertex();
-  float DcaNegToPrimVertex = v0->DcaNegToPrimVertex();  
-  if(fabs(DcaPosToPrimVertex) < fMinPosDCA) return false;
-  if(fabs(DcaNegToPrimVertex) < fMinNegDCA) return false;
-
   float V0CosineOfPointingAngle = v0->CosPointingAngle((double*)fVtxXYZ);
   if(V0CosineOfPointingAngle<fMinCosPoint) return false;
   
   float DcaV0Daughters = v0->DcaV0Daughters();
-  if(DcaV0Daughters>1.0) return false;
+  if(DcaV0Daughters>1.5) return false;
   
   double decayV[3]={};
   v0->GetXYZ(decayV);
   
   float radius = sqrt(pow(decayV[0]-fVtxXYZ[0],2) + pow(decayV[1]-fVtxXYZ[1],2));
   if(radius < fMinV0Radius || radius>fMaxV0Radius) return false;
-
+  
   float length = sqrt(pow(decayV[0]-fVtxXYZ[0],2) + pow(decayV[1]-fVtxXYZ[1],2) + pow(decayV[2]-fVtxXYZ[2],2));
   float proper_length = v0->MassK0Short() * length/v0->P();   
   if(fMinPropLifetime>proper_length || proper_length>fMaxPropLifetime) return false;
-
-  double rap = v0->RapK0Short();  
-  if( fIsPairRapCut & !(fMinPairRapCut<rap && rap<fMaxPairRapCut) ) return false;
-  
-  float massLambda = v0->MassLambda();
-  if( fMinRejLambdaMass<massLambda && massLambda<fMaxRejLambdaMass ) return false;
   
   return true;
+}
+
+bool AliAnalysisTaskAODTrackPairUtils::isK0sV0(AliAODv0 *v0)
+{
+
+  AliAODTrack *pTrack=(AliAODTrack *)v0->GetDaughter(0);
+  AliAODTrack *nTrack=(AliAODTrack *)v0->GetDaughter(1);  
+  if(!pTrack) return false;
+  if(!nTrack) return false;
+  
+  if(!isAcceptV0Track(pTrack,AliPID::kPion)) return false;
+  if(!isAcceptV0Track(nTrack,AliPID::kPion)) return false;
+
+  double rap = v0->RapK0Short();
+  if( fIsPairRapCut & !(fMinPairRapCut<rap && rap<fMaxPairRapCut) ) return false;
+  
+  double alpha = v0->AlphaV0();
+  double pt = v0->PtArmV0();
+  
+  if(fabs(alpha)>0.84) return false;
+
+  double min_pt = fMinArmenterosLine->Eval(alpha);
+  double max_pt = fMaxArmenterosLine->Eval(alpha);
+  
+  if(min_pt>pt || pt>max_pt){
+    return false;
+  }
+  
+  return true;
+}
+
+bool AliAnalysisTaskAODTrackPairUtils::isSameMother(AliAODTrack* track1, AliAODTrack* track2)
+{
+
+
 }
 
 bool AliAnalysisTaskAODTrackPairUtils::setVtxZCentPsi()
@@ -467,4 +561,17 @@ bool AliAnalysisTaskAODTrackPairUtils::setVZERO(){
   fTimeV0C = aodV0->GetV0CTime();
   
   return true;
+}
+
+bool AliAnalysisTaskAODTrackPairUtils::hasTOF(AliAODTrack* track){
+  
+  bool hasTOFout  = track->GetStatus() & AliVTrack::kTOFout;
+  bool hasTOFtime = track->GetStatus() & AliVTrack::kTIME;
+  float len = track->GetIntegratedLength();
+
+  if( !hasTOFout || !hasTOFtime || (len < 350.) ){
+    return false;
+  }
+
+  return true;  
 }

@@ -57,10 +57,16 @@ ClassImp(AliAnalysisTaskAODTrackPair)
 AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair() : 
   AliAnalysisTaskSE(),
   fEvent(NULL),
-  fPoolTrackMgr(NULL),
+  fPoolKaonTrackMgr(NULL),
+  fPoolPionTrackMgr(NULL),
+  fPoolK0sMgr(NULL),
   fUtils(NULL),
   fMCTrackArray(NULL),
   fIsMC(false),  
+  fOnKaonAna(false),
+  fOnPionAna(false),
+  fOnK0sAna(false),
+  fOnTrackQA(false),
   fRunNumber(-99999),
   fTrackDepth(1000),
   fPoolSize(1),
@@ -72,8 +78,69 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair() :
   onEvtMixingPoolPsi(true),
   fOutputList(NULL),
   fEventCounter(NULL),
-  fSparseK0s(NULL),
-  fSparseK0sK0s(NULL),
+
+  fHistArmenterosPodolanskiPlot(NULL),
+  fHistArmenterosPodolanskiPlot_K0s(NULL),
+
+  fHistULSKKPairMassPt(NULL),
+  fHistLSppKKPairMassPt(NULL),
+  fHistLSmmKKPairMassPt(NULL),
+
+  fHistMixULSKKPairMassPt(NULL),
+  fHistMixLSppKKPairMassPt(NULL),
+  fHistMixLSmmKKPairMassPt(NULL),
+
+  fHistULSKKPairMassPt_PionID(NULL),
+  fHistLSppKKPairMassPt_PionID(NULL),
+  fHistLSmmKKPairMassPt_PionID(NULL),
+
+  fHistMixULSKKPairMassPt_PionID(NULL),
+  fHistMixLSppKKPairMassPt_PionID(NULL),
+  fHistMixLSmmKKPairMassPt_PionID(NULL),
+
+  fHistULSPiPiPairMassPt(NULL),
+  fHistLSppPiPiPairMassPt(NULL),
+  fHistLSmmPiPiPairMassPt(NULL),
+
+  fHistMixULSPiPiPairMassPt(NULL),
+  fHistMixLSppPiPiPairMassPt(NULL),
+  fHistMixLSmmPiPiPairMassPt(NULL),
+  
+  fHistK0sMassPt(NULL),
+  fHistK0sK0sMassPt(NULL),
+  fHistMixK0sK0sMassPt(NULL),
+
+  fHistPrimaryTrackNSPDCluster(NULL),
+  fHistPrimaryTrackNITSCluster(NULL),
+  fHistPrimaryTrackNTPCCluster(NULL),
+  fHistPrimaryTrackEta(NULL),
+  fHistPrimaryTrackChi2perNDF(NULL),
+  fHistPrimaryTrackITSChi2perNDF(NULL),
+  fHistPrimaryTrackTPCChi2perNDF(NULL),
+  fHistPrimaryTrackTPCCrossRaws(NULL),
+  fHistPrimaryTrackTPCFindableCrossRaws(NULL),
+  fHistPrimaryTrackTPCCrossRawsOverFindable(NULL),
+  fHistPrimaryTrackTOFBunchCrossing(NULL),
+  fHistPrimaryTrackKinkIndex(NULL),
+  fHistPrimaryTrackDCAxy(NULL),
+  fHistPrimaryTrackDCAz(NULL),
+
+  fHistPrimaryTrackNSPDClusterQuality(NULL),
+  fHistPrimaryTrackNITSClusterQuality(NULL),
+  fHistPrimaryTrackNTPCClusterQuality(NULL),
+  fHistPrimaryTrackEtaQuality(NULL),
+  fHistPrimaryTrackChi2perNDFQuality(NULL),
+  fHistPrimaryTrackITSChi2perNDFQuality(NULL),
+  fHistPrimaryTrackTPCChi2perNDFQuality(NULL),
+  fHistPrimaryTrackTPCCrossRawsQuality(NULL),
+  fHistPrimaryTrackTPCFindableCrossRawsQuality(NULL),
+  fHistPrimaryTrackTPCCrossRawsOverFindableQuality(NULL),
+  fHistPrimaryTrackTOFBunchCrossingQuality(NULL),
+  fHistPrimaryTrackKinkIndexQuality(NULL),
+  fHistPrimaryTrackDCAxyQuality(NULL),
+  fHistPrimaryTrackDCAzQuality(NULL),
+
+
   fHistMomTPCSignalTrackQuality(NULL),
   fHistMomTOFBetaTrackQuality(NULL),
   fHistMomTPCSignalTrackQualityPionPID(NULL),
@@ -99,10 +166,16 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair() :
 AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair(const char* name) : 
   AliAnalysisTaskSE(name),
   fEvent(NULL),
-  fPoolTrackMgr(NULL),
+  fPoolKaonTrackMgr(NULL),
+  fPoolPionTrackMgr(NULL),
+  fPoolK0sMgr(NULL),
   fUtils(NULL),
   fMCTrackArray(NULL),
   fIsMC(false),
+  fOnKaonAna(false),
+  fOnPionAna(false),
+  fOnK0sAna(false),
+  fOnTrackQA(false),
   fRunNumber(-99999),
   fTrackDepth(1000),
   fPoolSize(1),
@@ -114,8 +187,67 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair(const char* name) :
   onEvtMixingPoolPsi(true),
   fOutputList(NULL),
   fEventCounter(NULL),
-  fSparseK0s(NULL),
-  fSparseK0sK0s(NULL),
+  fHistArmenterosPodolanskiPlot(NULL),
+  fHistArmenterosPodolanskiPlot_K0s(NULL),
+
+  fHistULSKKPairMassPt(NULL),
+  fHistLSppKKPairMassPt(NULL),
+  fHistLSmmKKPairMassPt(NULL),
+
+  fHistMixULSKKPairMassPt(NULL),
+  fHistMixLSppKKPairMassPt(NULL),
+  fHistMixLSmmKKPairMassPt(NULL),
+
+  fHistULSKKPairMassPt_PionID(NULL),
+  fHistLSppKKPairMassPt_PionID(NULL),
+  fHistLSmmKKPairMassPt_PionID(NULL),
+
+  fHistMixULSKKPairMassPt_PionID(NULL),
+  fHistMixLSppKKPairMassPt_PionID(NULL),
+  fHistMixLSmmKKPairMassPt_PionID(NULL),
+  
+  fHistULSPiPiPairMassPt(NULL),
+  fHistLSppPiPiPairMassPt(NULL),
+  fHistLSmmPiPiPairMassPt(NULL),
+
+  fHistMixULSPiPiPairMassPt(NULL),
+  fHistMixLSppPiPiPairMassPt(NULL),
+  fHistMixLSmmPiPiPairMassPt(NULL),
+
+  fHistK0sMassPt(NULL),
+  fHistK0sK0sMassPt(NULL),
+  fHistMixK0sK0sMassPt(NULL),
+  
+  fHistPrimaryTrackNSPDCluster(NULL),
+  fHistPrimaryTrackNITSCluster(NULL),
+  fHistPrimaryTrackNTPCCluster(NULL),
+  fHistPrimaryTrackEta(NULL),
+  fHistPrimaryTrackChi2perNDF(NULL),
+  fHistPrimaryTrackITSChi2perNDF(NULL),
+  fHistPrimaryTrackTPCChi2perNDF(NULL),
+  fHistPrimaryTrackTPCCrossRaws(NULL),
+  fHistPrimaryTrackTPCFindableCrossRaws(NULL),
+  fHistPrimaryTrackTPCCrossRawsOverFindable(NULL),
+  fHistPrimaryTrackTOFBunchCrossing(NULL),
+  fHistPrimaryTrackKinkIndex(NULL),
+  fHistPrimaryTrackDCAxy(NULL),
+  fHistPrimaryTrackDCAz(NULL),
+
+  fHistPrimaryTrackNSPDClusterQuality(NULL),
+  fHistPrimaryTrackNITSClusterQuality(NULL),
+  fHistPrimaryTrackNTPCClusterQuality(NULL),
+  fHistPrimaryTrackEtaQuality(NULL),
+  fHistPrimaryTrackChi2perNDFQuality(NULL),
+  fHistPrimaryTrackITSChi2perNDFQuality(NULL),
+  fHistPrimaryTrackTPCChi2perNDFQuality(NULL),
+  fHistPrimaryTrackTPCCrossRawsQuality(NULL),
+  fHistPrimaryTrackTPCFindableCrossRawsQuality(NULL),
+  fHistPrimaryTrackTPCCrossRawsOverFindableQuality(NULL),
+  fHistPrimaryTrackTOFBunchCrossingQuality(NULL),
+  fHistPrimaryTrackKinkIndexQuality(NULL),
+  fHistPrimaryTrackDCAxyQuality(NULL),
+  fHistPrimaryTrackDCAzQuality(NULL),
+
   fHistMomTPCSignalTrackQuality(NULL),
   fHistMomTOFBetaTrackQuality(NULL),
   fHistMomTPCSignalTrackQualityPionPID(NULL),
@@ -143,11 +275,23 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair(const char* name) :
   int fNVtxZBins = sizeof(fVtxBins)/sizeof(double)-1;
   int fNPsiBins = sizeof(fPsiBins)/sizeof(double)-1;
 
-  fPoolTrackMgr = new AliEventPoolManager(fPoolSize,fTrackDepth,
+  fPoolKaonTrackMgr = new AliEventPoolManager(fPoolSize,fTrackDepth,
 					      fNCentBins,(double*)fCentBins,
 					      fNVtxZBins,(double*)fVtxBins,
 					      fNPsiBins,(double*)fPsiBins);  
-  fPoolTrackMgr->SetTargetValues(fTrackDepth,(double)fReadyFraction,fPoolSize);  
+  fPoolKaonTrackMgr->SetTargetValues(fTrackDepth,(double)fReadyFraction,fPoolSize);  
+
+  fPoolPionTrackMgr = new AliEventPoolManager(fPoolSize,fTrackDepth,
+					      fNCentBins,(double*)fCentBins,
+					      fNVtxZBins,(double*)fVtxBins,
+					      fNPsiBins,(double*)fPsiBins);  
+  fPoolPionTrackMgr->SetTargetValues(fTrackDepth,(double)fReadyFraction,fPoolSize);  
+
+  fPoolK0sMgr = new AliEventPoolManager(fPoolSize,fTrackDepth,
+					      fNCentBins,(double*)fCentBins,
+					      fNVtxZBins,(double*)fVtxBins,
+					      fNPsiBins,(double*)fPsiBins);  
+  fPoolK0sMgr->SetTargetValues(fTrackDepth,(double)fReadyFraction,fPoolSize);  
   
   // Define input and output slots here
   // Input slot #0 works with a TChain
@@ -178,57 +322,101 @@ void AliAnalysisTaskAODTrackPair::UserCreateOutputObjects()
 
   fEventCounter = new TH1F("fEventCounter","",binnum_event_hist,bins_event_hist);
   fOutputList->Add(fEventCounter);
+  
+  if(fOnK0sAna){
+    fHistK0sMassPt = new TH2F("fHistK0sMassPt","fHistK0sMassPt",5000,0.0,5.0,100,0,10);
+    fHistK0sK0sMassPt = new TH2F("fHistK0sK0sMassPt","fHistK0sK0sMassPt",600,1.0,4.0,100,0,10);
+    fHistMixK0sK0sMassPt = new TH2F("fHistMixK0sK0sMassPt","fHistMixK0sK0sMassPt",600,1.0,4.0,100,0,10);
+    fOutputList->Add(fHistK0sMassPt);  
+    fOutputList->Add(fHistK0sK0sMassPt);
+    fOutputList->Add(fHistMixK0sK0sMassPt);
+    
+    fHistArmenterosPodolanskiPlot = new TH2F("fHistArmenterosPodolanskiPlot","",220,-1.1,1.1,300,0,0.3);
+    fHistArmenterosPodolanskiPlot_K0s = new TH2F("fHistArmenterosPodolanskiPlot_K0s","",220,-1.1,1.1,300,0,0.3);
+    fOutputList->Add(fHistArmenterosPodolanskiPlot);
+    fOutputList->Add(fHistArmenterosPodolanskiPlot_K0s);
+  }
 
-  const Int_t binnum_K0s            = 3;
-  Int_t bins_K0s[binnum_K0s]       = {200,100,binnum_cent_hist};
-  double minbins_K0s[binnum_K0s] = {0.4,0,0};
-  double maxbins_K0s[binnum_K0s] = {0.6,10,100};
-  TString  namebins_K0s[]        = {"mass","pt","centrality"};
+  if(fOnKaonAna){
+    fHistULSKKPairMassPt = new TH2F("fHistULSKKPairMassPt","",700,0.5,4.,100,0,10);
+    fHistLSppKKPairMassPt = new TH2F("fHistLSppKKPairMassPt","",700,0.5,4.,100,0,10);
+    fHistLSmmKKPairMassPt = new TH2F("fHistLSmmKKPairMassPt","",700,0.5,4.,100,0,10);
+    fOutputList->Add(fHistULSKKPairMassPt);
+    fOutputList->Add(fHistLSppKKPairMassPt);
+    fOutputList->Add(fHistLSmmKKPairMassPt);
 
-  fSparseK0s = new THnSparseF("fSparseK0s","",binnum_K0s,bins_K0s,minbins_K0s,maxbins_K0s);
-  fOutputList->Add(fSparseK0s);
+    fHistMixULSKKPairMassPt = new TH2F("fHistMixULSKKPairMassPt","",700,0.5,4.,100,0,10);
+    fHistMixLSppKKPairMassPt = new TH2F("fHistMixLSppKKPairMassPt","",700,0.5,4.,100,0,10);
+    fHistMixLSmmKKPairMassPt = new TH2F("fHistMixLSmmKKPairMassPt","",700,0.5,4.,100,0,10);
+    fOutputList->Add(fHistMixULSKKPairMassPt);
+    fOutputList->Add(fHistMixLSppKKPairMassPt);
+    fOutputList->Add(fHistMixLSmmKKPairMassPt);
+  }
 
-  const Int_t binnum_K0sK0s            = 3;
-  Int_t bins_K0sK0s[binnum_K0sK0s]       = {2000,100,binnum_cent_hist};
-  double minbins_K0sK0s[binnum_K0sK0s] = {0.5,0,0};
-  double maxbins_K0sK0s[binnum_K0sK0s] = {2.5,10,100};
-  TString  namebins_K0sK0s[]        = {"mass","pt","centrality"};
-  fSparseK0sK0s = new THnSparseF("fSparseK0sK0s","",binnum_K0sK0s,bins_K0sK0s,minbins_K0sK0s,maxbins_K0sK0s);
-  fOutputList->Add(fSparseK0sK0s);
+  if(fOnPionAna){
+    fHistULSPiPiPairMassPt = new TH2F("fHistULSPiPiPairMassPt","",800,0.,4.,100,0,10);
+    fHistLSppPiPiPairMassPt = new TH2F("fHistLSppPiPiPairMassPt","",800,0.,4.,100,0,10);
+    fHistLSmmPiPiPairMassPt = new TH2F("fHistLSmmPiPiPairMassPt","",800,0.,4.,100,0,10);
+    fOutputList->Add(fHistULSPiPiPairMassPt);
+    fOutputList->Add(fHistLSppPiPiPairMassPt);
+    fOutputList->Add(fHistLSmmPiPiPairMassPt);
+    
+    fHistMixULSPiPiPairMassPt = new TH2F("fHistMixULSPiPiPairMassPt","",800,0.,4.,100,0,10);
+    fHistMixLSppPiPiPairMassPt = new TH2F("fHistMixLSppPiPiPairMassPt","",800,0.,4.,100,0,10);
+    fHistMixLSmmPiPiPairMassPt = new TH2F("fHistMixLSmmPiPiPairMassPt","",800,0.,4.,100,0,10);
+    fOutputList->Add(fHistMixULSPiPiPairMassPt);
+    fOutputList->Add(fHistMixLSppPiPiPairMassPt);
+    fOutputList->Add(fHistMixLSmmPiPiPairMassPt);
+  }
 
-  fHistMomTPCSignalTrackQuality = new TH2F("fHistMomTPCSignalTrackQuality","",1000,0,10,1000,0,1000);
-  fHistMomTOFBetaTrackQuality = new TH2F("fHistMomTOFBetaTrackQuality","",1000,0,10,200,0,2);
-  fHistMomTPCSignalTrackQualityPionPID = new TH2F("fHistMomTPCSignalTrackQualityPionPID","",1000,0,10,1000,0,1000);
-  fHistMomTOFBetaTrackQualityPionPID = new TH2F("fHistMomTOFBetaTrackQualityPionPID","",1000,0,10,200,0,2);
-  fHistMomTPCSignalTrackQualityKaonPID = new TH2F("fHistMomTPCSignalTrackQualityKaonPID","",1000,0,10,1000,0,1000);
-  fHistMomTOFBetaTrackQualityKaonPID = new TH2F("fHistMomTOFBetaTrackQualityKaonPID","",1000,0,10,200,0,2);
-  fHistMomTPCSignalTrackQualityProtonPID = new TH2F("fHistMomTPCSignalTrackQualityProtonPID","",1000,0,10,1000,0,1000);
-  fHistMomTOFBetaTrackQualityProtonPID = new TH2F("fHistMomTOFBetaTrackQualityProtonPID","",1000,0,10,200,0,2);  
-  fOutputList->Add(fHistMomTPCSignalTrackQuality);
-  fOutputList->Add(fHistMomTOFBetaTrackQuality);
-  fOutputList->Add(fHistMomTPCSignalTrackQualityPionPID);
-  fOutputList->Add(fHistMomTOFBetaTrackQualityPionPID);
-  fOutputList->Add(fHistMomTPCSignalTrackQualityKaonPID);
-  fOutputList->Add(fHistMomTOFBetaTrackQualityKaonPID);
-  fOutputList->Add(fHistMomTPCSignalTrackQualityProtonPID);
-  fOutputList->Add(fHistMomTOFBetaTrackQualityProtonPID);
-
-  fHistMomTPCSigmaTrackQuality = new TH2F("fHistMomTPCSigmaTrackQuality","",1000,0,10,20,-5,5);
-  fHistMomTOFSigmaTrackQuality = new TH2F("fHistMomTOFSigmaTrackQuality","",1000,0,10,20,-5,5);
-  fHistMomTPCSigmaTrackQualityPionPID = new TH2F("fHistMomTPCSigmaTrackQualityPionPID","",1000,0,10,20,-5,5);
-  fHistMomTOFSigmaTrackQualityPionPID = new TH2F("fHistMomTOFSigmaTrackQualityPionPID","",1000,0,10,20,-5,5);
-  fHistMomTPCSigmaTrackQualityKaonPID = new TH2F("fHistMomTPCSigmaTrackQualityKaonPID","",1000,0,10,20,-5,5);
-  fHistMomTOFSigmaTrackQualityKaonPID = new TH2F("fHistMomTOFSigmaTrackQualityKaonPID","",1000,0,10,20,-5,5);
-  fHistMomTPCSigmaTrackQualityProtonPID = new TH2F("fHistMomTPCSigmaTrackQualityProtonPID","",1000,0,20,-5,5);
-  fHistMomTOFSigmaTrackQualityProtonPID = new TH2F("fHistMomTOFSigmaTrackQualityProtonPID","",1000,0,20,-5,5);
-  fOutputList->Add(fHistMomTPCSigmaTrackQuality);
-  fOutputList->Add(fHistMomTOFSigmaTrackQuality);
-  fOutputList->Add(fHistMomTPCSigmaTrackQualityPionPID);
-  fOutputList->Add(fHistMomTOFSigmaTrackQualityPionPID);
-  fOutputList->Add(fHistMomTPCSigmaTrackQualityKaonPID);
-  fOutputList->Add(fHistMomTOFSigmaTrackQualityKaonPID);
-  fOutputList->Add(fHistMomTPCSigmaTrackQualityProtonPID);
-  fOutputList->Add(fHistMomTOFSigmaTrackQualityProtonPID);
+  if(fOnTrackQA){
+    fHistPrimaryTrackNSPDClusterQuality = new TH2F("fHistPrimaryTrackNSPDClusterQuality","",100,0,10,3,0,3);
+    fHistPrimaryTrackNITSClusterQuality = new TH2F("fHistPrimaryTrackNITSClusterQuality","",100,0,10,7,0,7);
+    fHistPrimaryTrackNTPCClusterQuality = new TH2F("fHistPrimaryTrackNTPCClusterQuality","",100,0,10,160,0,160);
+    fHistPrimaryTrackEtaQuality = new TH2F("fHistPrimaryTrackEtaQuality","",100,0,10,200,-1.,1.);
+    fHistPrimaryTrackChi2perNDFQuality = new TH2F("fHistPrimaryTrackChi2perNDFQuality","",100,0,10,100,0,10);
+    fHistPrimaryTrackITSChi2perNDFQuality = new TH2F("fHistPrimaryTrackITSChi2perNDFQuality","",100,0,10,50,0,50);
+    fHistPrimaryTrackTPCChi2perNDFQuality = new TH2F("fHistPrimaryTrackTPCChi2perNDFQuality","",100,0,10,100,0,10);
+    fHistPrimaryTrackTPCCrossRawsQuality = new TH2F("fHistPrimaryTrackTPCCrossRawsQuality","",100,0,10,160,0,160);
+    fHistPrimaryTrackTPCFindableCrossRawsQuality = new TH2F("fHistPrimaryTrackTPCFindableCrossRawsQuality","",100,0,10,160,0,160);
+    fHistPrimaryTrackTPCCrossRawsOverFindableQuality = new TH2F("fHistPrimaryTrackTPCCrossRawsOverFindableQuality","",100,0,10,100,0,1);
+    fHistPrimaryTrackTOFBunchCrossingQuality = new TH2F("fHistPrimaryTrackTOFBunchCrossingQuality","",100,0,10,20,0,20);
+    fHistPrimaryTrackKinkIndexQuality = new TH2F("fHistPrimaryTrackKinkIndexQuality","",100,0,10,2,0,2);
+    fHistPrimaryTrackDCAxyQuality = new TH2F("fHistPrimaryTrackDCAxyQuality","",100,0,10,200,-1,1);
+    fHistPrimaryTrackDCAzQuality = new TH2F("fHistPrimaryTrackDCAzQuality","",100,0,10,50,-2.5,2.5);
+    fOutputList->Add(fHistPrimaryTrackNSPDClusterQuality);
+    fOutputList->Add(fHistPrimaryTrackNITSClusterQuality);
+    fOutputList->Add(fHistPrimaryTrackNTPCClusterQuality);
+    fOutputList->Add(fHistPrimaryTrackEtaQuality);
+    fOutputList->Add(fHistPrimaryTrackChi2perNDFQuality);
+    fOutputList->Add(fHistPrimaryTrackITSChi2perNDFQuality);
+    fOutputList->Add(fHistPrimaryTrackTPCChi2perNDFQuality);
+    fOutputList->Add(fHistPrimaryTrackTPCCrossRawsQuality);
+    fOutputList->Add(fHistPrimaryTrackTPCFindableCrossRawsQuality);
+    fOutputList->Add(fHistPrimaryTrackTPCCrossRawsOverFindableQuality);
+    fOutputList->Add(fHistPrimaryTrackTOFBunchCrossingQuality);
+    fOutputList->Add(fHistPrimaryTrackKinkIndexQuality);
+    fOutputList->Add(fHistPrimaryTrackDCAxyQuality);
+    fOutputList->Add(fHistPrimaryTrackDCAzQuality);
+    
+  
+    fHistMomTPCSignalTrackQuality = new TH2F("fHistMomTPCSignalTrackQuality","",1000,0,10,1000,0,1000);
+    fHistMomTOFBetaTrackQuality = new TH2F("fHistMomTOFBetaTrackQuality","",1000,0,10,200,0,2);
+    fHistMomTPCSignalTrackQualityPionPID = new TH2F("fHistMomTPCSignalTrackQualityPionPID","",1000,0,10,1000,0,1000);
+    fHistMomTOFBetaTrackQualityPionPID = new TH2F("fHistMomTOFBetaTrackQualityPionPID","",1000,0,10,200,0,2);
+    fHistMomTPCSignalTrackQualityKaonPID = new TH2F("fHistMomTPCSignalTrackQualityKaonPID","",1000,0,10,1000,0,1000);
+    fHistMomTOFBetaTrackQualityKaonPID = new TH2F("fHistMomTOFBetaTrackQualityKaonPID","",1000,0,10,200,0,2);
+    fHistMomTPCSignalTrackQualityProtonPID = new TH2F("fHistMomTPCSignalTrackQualityProtonPID","",1000,0,10,1000,0,1000);
+    fHistMomTOFBetaTrackQualityProtonPID = new TH2F("fHistMomTOFBetaTrackQualityProtonPID","",1000,0,10,200,0,2);  
+    fOutputList->Add(fHistMomTPCSignalTrackQuality);
+    fOutputList->Add(fHistMomTOFBetaTrackQuality);
+    fOutputList->Add(fHistMomTPCSignalTrackQualityPionPID);
+    fOutputList->Add(fHistMomTOFBetaTrackQualityPionPID);
+    fOutputList->Add(fHistMomTPCSignalTrackQualityKaonPID);
+    fOutputList->Add(fHistMomTOFBetaTrackQualityKaonPID);
+    fOutputList->Add(fHistMomTPCSignalTrackQualityProtonPID);
+    fOutputList->Add(fHistMomTOFBetaTrackQualityProtonPID);
+  }
   
   PostData(1, fOutputList);    
 }
@@ -242,59 +430,69 @@ void AliAnalysisTaskAODTrackPair::UserExec(Option_t *)
   
   fEventCounter->Fill(fUtils->getCentClass());
 
-  TrackQA();  
-  V0TrackPairAnalysis();
+  if(fOnK0sAna) V0TrackPairAnalysis();
+  if(fOnKaonAna || fOnPionAna) PrimeTrackPairAnalysis();
 }
 
-bool AliAnalysisTaskAODTrackPair::TrackQA()
+bool AliAnalysisTaskAODTrackPair::TrackQA(AliAODTrack* track)
 {
   
-  Int_t nTrack = fEvent->GetNumberOfTracks();
-
-  for(Int_t iTrack1=0; iTrack1<nTrack; ++iTrack1){
-
-    AliAODTrack *track = (AliAODTrack*)fEvent->GetTrack(iTrack1);        
-    
-    float sigTPC = track->GetTPCsignal();
-    float sigTOF =track->GetTOFsignal();
-    float length =track->GetIntegratedLength();
-    float beta =(sigTOF>0)?(double)length/ (2.99792457999999984e-02 * sigTOF):0;
-    
-    if( fUtils->isAcceptTrackQuality(track) ){
-
-      fHistMomTPCSignalTrackQuality->Fill(track->P(),sigTPC);      
-      if(track->GetTOFBunchCrossing()==0) {
-	fHistMomTOFBetaTrackQuality->Fill(track->P(),beta);
-      }
-      if( fUtils->isAcceptPid(track,AliPID::kPion) ){
-	fHistMomTPCSignalTrackQualityPionPID->Fill(track->P(),sigTPC);	
-	fHistMomTPCSigmaTrackQualityPionPID->Fill(track->P(),fUtils->getTPCsigma(track,AliPID::kPion));
-
-	if(track->GetTOFBunchCrossing()==0) {
-	  fHistMomTOFBetaTrackQualityPionPID->Fill(track->P(),beta);
-	  fHistMomTOFSigmaTrackQualityPionPID->Fill(track->P(),fUtils->getTOFsigma(track,AliPID::kPion));
-	}
-      }
-      else if( fUtils->isAcceptPid(track,AliPID::kKaon) ){
-	fHistMomTPCSignalTrackQualityKaonPID->Fill(track->P(),sigTPC);
-	fHistMomTPCSigmaTrackQualityKaonPID->Fill(track->P(),fUtils->getTPCsigma(track,AliPID::kKaon));
-	if(track->GetTOFBunchCrossing()==0) {
-	  fHistMomTOFBetaTrackQualityKaonPID->Fill(track->P(),beta);
-	  fHistMomTOFSigmaTrackQualityKaonPID->Fill(track->P(),fUtils->getTOFsigma(track,AliPID::kKaon));
-	}
-      }
-      else if( fUtils->isAcceptPid(track,AliPID::kProton) ){
-	fHistMomTPCSignalTrackQualityProtonPID->Fill(track->P(),sigTPC);
-	fHistMomTPCSigmaTrackQualityProtonPID->Fill(track->P(),fUtils->getTPCsigma(track,AliPID::kProton));
-	if(track->GetTOFBunchCrossing()==0) {
-	  fHistMomTOFBetaTrackQualityProtonPID->Fill(track->P(),beta);
-	  fHistMomTOFSigmaTrackQualityProtonPID->Fill(track->P(),fUtils->getTOFsigma(track,AliPID::kProton));
-	}
-      }
-
-    }
-  }
+  if(!track) return false;
   
+  float sigTPC = track->GetTPCsignal();
+  float sigTOF =track->GetTOFsignal();
+  float length =track->GetIntegratedLength();
+  float beta =(sigTOF>0)?(double)length/ (2.99792457999999984e-02 * sigTOF):0;
+
+  float dca_xy=9999;
+  float dca_z=9999;
+  track->GetImpactParameters(dca_xy,dca_z);
+
+  if( fUtils->isAcceptPrimeTrackQuality(track) ){
+      
+    fHistPrimaryTrackNSPDClusterQuality->Fill(track->Pt(),track->GetITSNcls());
+    fHistPrimaryTrackNITSClusterQuality->Fill(track->Pt(),track->GetITSNcls());
+    fHistPrimaryTrackNTPCClusterQuality->Fill(track->Pt(),track->GetTPCNcls());
+    fHistPrimaryTrackEtaQuality->Fill(track->Pt(),track->Eta());
+    fHistPrimaryTrackChi2perNDFQuality->Fill(track->Pt(),track->Chi2perNDF());
+    fHistPrimaryTrackITSChi2perNDFQuality->Fill(track->Pt(),track->GetITSNcls()>0 ? track->GetITSchi2()/track->GetITSNcls() : 0);
+    fHistPrimaryTrackTPCChi2perNDFQuality->Fill(track->Pt(),track->GetTPCNcls()>0 ? track->GetTPCchi2()/track->GetTPCNcls() : 0);
+    fHistPrimaryTrackTPCCrossRawsQuality->Fill(track->Pt(),track->GetTPCNCrossedRows());
+    fHistPrimaryTrackTPCFindableCrossRawsQuality->Fill(track->Pt(),track->GetTPCNclsF());
+    fHistPrimaryTrackTPCCrossRawsOverFindableQuality->Fill(track->Pt(),track->GetTPCNclsF()>0 ? track->GetTPCCrossedRows()/track->GetTPCNclsF() : 0);
+    fHistPrimaryTrackTOFBunchCrossingQuality->Fill(track->Pt(),track->GetTOFBunchCrossing());
+    fHistPrimaryTrackKinkIndexQuality->Fill(track->Pt(),track->GetKinkIndex(0));
+    fHistPrimaryTrackDCAxyQuality->Fill(track->Pt(),dca_xy);
+    fHistPrimaryTrackDCAzQuality->Fill(track->Pt(),dca_z);
+            
+    fHistMomTPCSignalTrackQuality->Fill(track->P(),sigTPC);      
+      
+    if(track->GetTOFBunchCrossing()==0) {
+      fHistMomTOFBetaTrackQuality->Fill(track->P(),beta);
+    }
+
+    if( fUtils->isAcceptPid(track,AliPID::kPion) ){
+      fHistMomTPCSignalTrackQualityPionPID->Fill(track->P(),sigTPC);		
+      if(track->GetTOFBunchCrossing()==0) {
+	fHistMomTOFBetaTrackQualityPionPID->Fill(track->P(),beta);
+      }
+    }
+
+    if( fUtils->isAcceptPid(track,AliPID::kKaon) ){
+      fHistMomTPCSignalTrackQualityKaonPID->Fill(track->P(),sigTPC);		
+      if(track->GetTOFBunchCrossing()==0) {
+	fHistMomTOFBetaTrackQualityKaonPID->Fill(track->P(),beta);
+      }
+    }
+      
+    if( fUtils->isAcceptPid(track,AliPID::kProton) ){
+      fHistMomTPCSignalTrackQualityProtonPID->Fill(track->P(),sigTPC);		
+      if(track->GetTOFBunchCrossing()==0) {
+	fHistMomTOFBetaTrackQualityProtonPID->Fill(track->P(),beta);
+      }
+    }    
+  }
+
   return true;
 }
 
@@ -306,11 +504,23 @@ bool AliAnalysisTaskAODTrackPair::Initialize()
   if( !fUtils->setEvent(fEvent,fInputHandler) )
     return false;
   
+  if(fIsMC){
+    AliAODMCHeader* mcHeader = (AliAODMCHeader*) fEvent->GetList()->FindObject(AliAODMCHeader::StdBranchName());
+    if(!mcHeader) return false;  
+    TList* headerList = mcHeader->GetCocktailHeaders();
+    if(!headerList) return false;
+    //Double_t impPar = mcHeader->GetImpactParameter();    
+    TClonesArray *mcarray = dynamic_cast<TClonesArray*>(fEvent->FindListObject(AliAODMCParticle::StdBranchName()));
+    if(!mcarray) return false;
+    fUtils->setMCArray(mcarray);
+  }
+  
   return true;
+
 }
 
 
-AliEventPool* AliAnalysisTaskAODTrackPair::setPool()
+AliEventPool* AliAnalysisTaskAODTrackPair::setPool(int id)
 {
   float poolCent=0.;
   float poolVtxZ=0.;
@@ -320,51 +530,302 @@ AliEventPool* AliAnalysisTaskAODTrackPair::setPool()
   if(onEvtMixingPoolCent) poolCent=fUtils->getCentClass();
   if(onEvtMixingPoolPsi) poolPsi=fUtils->getPsi();
 
-  AliEventPool* pool = (AliEventPool*)fPoolTrackMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
+  AliEventPool* pool = NULL;;
   
+  if(id==0){
+    pool = (AliEventPool*)fPoolKaonTrackMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
+  }
+  else if(id==1){
+    pool = (AliEventPool*)fPoolPionTrackMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
+  }
+  else{
+    pool = (AliEventPool*)fPoolK0sMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
+  }
+
   return pool;
 }
 
-bool AliAnalysisTaskAODTrackPair::TrackPairAnalysisEveMixing(){
+bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
+
+  TObjArray* fKaonTrackArray = new TObjArray();
+  TObjArray* fPionTrackArray = new TObjArray();
+  fKaonTrackArray -> SetOwner();
+  fPionTrackArray -> SetOwner();
+
+  AliEventPool* poolKaon = setPool(0);  
+  AliEventPool* poolPion = setPool(1);  
+  /*
+  cout<<"   poolKaon->GetCurrentNEvents():  "<<poolKaon->GetCurrentNEvents()<<endl;
+  TObjArray* poolKaonTracks1 = (TObjArray*)poolKaon->GetEvent(0);
+  TObjArray* poolKaonTracks2 = (TObjArray*)poolKaon->GetEvent(1);
+  if(poolKaonTracks1)cout<<"      poolKaonTracks1:  "<<poolKaonTracks1->GetEntriesFast()<<endl;
+  if(poolKaonTracks2)cout<<"      poolKaonTracks2:  "<<poolKaonTracks2->GetEntriesFast()<<endl;
+  cout<<"   poolPion->GetCurrentNEvents():  "<<poolPion->GetCurrentNEvents()<<endl;
+  TObjArray* poolPionTracks1 = (TObjArray*)poolPion->GetEvent(0);
+  TObjArray* poolPionTracks2 = (TObjArray*)poolPion->GetEvent(1);
+  if(poolPionTracks1)cout<<"      poolPionTracks1:  "<<poolPionTracks1->GetEntriesFast()<<endl;
+  if(poolPionTracks2)cout<<"      poolPionTracks2:  "<<poolPionTracks2->GetEntriesFast()<<endl;
+  */
+  Int_t nTrack = fEvent->GetNumberOfTracks();
   
-  if( !(fInputHandler->IsEventSelected() & fTriggerMaskForMixing) ) return false;
+  for(Int_t iTrack1=0; iTrack1<nTrack; ++iTrack1){
+    
+    AliAODTrack *track1 = (AliAODTrack*)fEvent->GetTrack(iTrack1);        
+    if(!track1) continue;
+    
+    if(fOnTrackQA) TrackQA(track1);
+        
+    for(Int_t iTrack2=iTrack1+1; iTrack2<nTrack; ++iTrack2){
+      
+      AliAODTrack *track2 = (AliAODTrack*)fEvent->GetTrack(iTrack2);              
+      if(!track2) continue;
+
+      TLorentzVector t1;
+      TLorentzVector t2;
+      TLorentzVector t12;
+    
+      if(fOnKaonAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kKaon) && fUtils->isAcceptPrimeTrack(track2,AliPID::kKaon)){
+	
+	t1.SetPtEtaPhiM(track1->Pt(),track1->Eta(),track1->Phi(),fUtils->fMassKaon);
+	t2.SetPtEtaPhiM(track2->Pt(),track2->Eta(),track2->Phi(),fUtils->fMassKaon);      
+	t12 = t1 + t2;  
+	
+	if(!fUtils->isAcceptTrackPair(t12.Rapidity(),t12.Pt())) continue;
+
+	if( track1->Charge() != track2->Charge() ){
+	  fHistULSKKPairMassPt->Fill(t12.M(),t12.Pt());	
+	}
+	else {
+	  if( track1->Charge()>0 ){
+	    fHistLSppKKPairMassPt->Fill(t12.M(),t12.Pt());
+	  }
+	  else{
+	    fHistLSmmKKPairMassPt->Fill(t12.M(),t12.Pt());
+	  }
+	}
+      }
+
+      if(fOnPionAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kPion) && fUtils->isAcceptPrimeTrack(track2,AliPID::kPion)){
+	
+	t1.SetPtEtaPhiM(track1->Pt(),track1->Eta(),track1->Phi(),fUtils->fMassPion);
+	t2.SetPtEtaPhiM(track2->Pt(),track2->Eta(),track2->Phi(),fUtils->fMassPion);      
+	t12 = t1 + t2;  
+	
+	if(fUtils->isAcceptTrackPair(t12.Rapidity(),t12.Pt())){
+	  if( track1->Charge() != track2->Charge() ){
+	    fHistULSPiPiPairMassPt->Fill(t12.M(),t12.Pt());	
+	  }
+	  else {
+	    if( track1->Charge()>0 ){
+	      fHistLSppPiPiPairMassPt->Fill(t12.M(),t12.Pt());
+	    }
+	    else{
+	      fHistLSmmPiPiPairMassPt->Fill(t12.M(),t12.Pt());
+	    }
+	  }
+	}       
+      }      
+    }//end of loop track2
+    
+    if(fOnKaonAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kKaon)){
+      
+      if (poolKaon->IsReady()){
+      
+	for (Int_t iMixEvt=0; iMixEvt<poolKaon->GetCurrentNEvents(); iMixEvt++){
+
+	  TObjArray* poolTracks = (TObjArray*)poolKaon->GetEvent(iMixEvt);	
+	
+	  for(Int_t iTrack2=0; iTrack2<poolTracks->GetEntriesFast(); ++iTrack2){
+	  
+	    AliAODTrack* __track2__ = (AliAODTrack*)poolTracks->At(iTrack2);
+	    AliAODTrack* track2 = (AliAODTrack*)__track2__->Clone();
+
+	    TLorentzVector t1;
+	    TLorentzVector t2;
+	    TLorentzVector t12;
+	    
+	    t1.SetPtEtaPhiM(track1->Pt(),track1->Eta(),track1->Phi(),fUtils->fMassKaon);
+	    t2.SetPtEtaPhiM(track2->Pt(),track2->Eta(),track2->Phi(),fUtils->fMassKaon);      
+	    t12 = t1 + t2;  
+	
+	    if(!fUtils->isAcceptTrackPair(t12.Rapidity(),t12.Pt())) continue;
+	    
+	    if( track1->Charge() != track2->Charge() ){
+	      fHistMixULSKKPairMassPt->Fill(t12.M(),t12.Pt());	
+	    }
+	    else {
+	      if( track1->Charge()>0 ){
+		fHistMixLSppKKPairMassPt->Fill(t12.M(),t12.Pt());
+	      }
+	      else{
+		fHistMixLSmmKKPairMassPt->Fill(t12.M(),t12.Pt());
+	      }
+	    }
+	    
+	    delete track2;
+
+	  }//end of loop track2
+	}// end of loop iMixEvt
+	
+      }//poolKaonon->IsReady()    
+    }//if(fUtils->isAcceptPrimeTrack(track1,AliPID::kKaon))
+    /*
+    if(fOnPionAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kPion)){
+
+      if (poolPion->IsReady()){
+      
+	for (Int_t iMixEvt=0; iMixEvt<poolPion->GetCurrentNEvents(); iMixEvt++){
+
+	  TObjArray* poolTracks = (TObjArray*)poolPion->GetEvent(iMixEvt);	
+	
+	  for(Int_t iTrack2=0; iTrack2<poolTracks->GetEntriesFast(); ++iTrack2){
+	  
+	    AliAODTrack* __track2__ = (AliAODTrack*)poolTracks->At(iTrack2);
+	    AliAODTrack* track2 = (AliAODTrack*)__track2__->Clone();
+
+	    TLorentzVector t1;
+	    TLorentzVector t2;
+	    TLorentzVector t12;
+	    
+	    t1.SetPtEtaPhiM(track1->Pt(),track1->Eta(),track1->Phi(),fUtils->fMassPion);
+	    t2.SetPtEtaPhiM(track2->Pt(),track2->Eta(),track2->Phi(),fUtils->fMassPion);      
+	    t12 = t1 + t2;  
+	
+	    if(!fUtils->isAcceptTrackPair(t12.Rapidity(),t12.Pt())) continue;
+	    
+	    if( track1->Charge() != track2->Charge() ){
+	      fHistMixULSPiPiPairMassPt->Fill(t12.M(),t12.Pt());	
+	    }
+	    else {
+	      if( track1->Charge()>0 ){
+		fHistMixLSppPiPiPairMassPt->Fill(t12.M(),t12.Pt());
+	      }
+	      else{
+		fHistMixLSmmPiPiPairMassPt->Fill(t12.M(),t12.Pt());
+	      }
+	    }
+	    
+	    delete track2;
+
+	  }//end of loop track2
+	}// end of loop iMixEvt
+	
+      }//poolPionon->IsReady()    
+    }//if(fUtils->isAcceptPrimeTrack(track1,AliPID::kPion))
+    */
+    if(fOnKaonAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kKaon)){      
+      fKaonTrackArray->Add(track1);
+    }
+
+    if(fOnPionAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kPion)){            
+      fPionTrackArray->Add(track1);
+    }    
+  }//end of loop track1
+  
+  if(fOnKaonAna){
+    TObjArray* fKaonTrackArrayClone = (TObjArray*)fKaonTrackArray->Clone();
+    fKaonTrackArrayClone->SetOwner();
+    //cout<<"       This event stores  "<<fKaonTrackArrayClone->GetEntriesFast()<<endl;
+    if(fKaonTrackArrayClone->GetEntriesFast()>0){
+      poolKaon->UpdatePool(fKaonTrackArrayClone);
+    }
+  }
+
+  if(fOnPionAna){
+    TObjArray* fPionTrackArrayClone = (TObjArray*)fPionTrackArray->Clone();
+    fPionTrackArrayClone->SetOwner();
+    //cout<<"       This event stores  "<<fPionTrackArrayClone->GetEntriesFast()<<endl;
+    if(fPionTrackArrayClone->GetEntriesFast()>0){
+      poolPion->UpdatePool(fPionTrackArrayClone);
+    }
+  }
+  
+  delete fKaonTrackArray;
+  delete fPionTrackArray;
+ 
+}
+
+bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
+{ 
   
   TObjArray* fTrackArray = new TObjArray();
   fTrackArray -> SetOwner();
 
-  AliEventPool* pool = setPool();  
-  
-  Int_t nTrack = fEvent->GetNumberOfTracks();
+  AliEventPool* pool = setPool(2);  
 
-  for(Int_t iTrack1=0; iTrack1<nTrack; ++iTrack1){
+  int nV0Pair = fEvent->GetNumberOfV0s();
 
-    AliAODTrack *track1 = (AliAODTrack*)fEvent->GetTrack(iTrack1);        
-    //if(!fUtils->isAcceptTrack(track1)) continue;
+  for(int iV0=0; iV0<nV0Pair; ++iV0){
     
-    if (pool->IsReady()){
+    AliAODv0 *v0_1 = fEvent->GetV0(iV0);
+
+    if( !fUtils->isAcceptDefaultV0(v0_1) ) continue;
+    
+    fHistArmenterosPodolanskiPlot->Fill(v0_1->AlphaV0(),v0_1->PtArmV0());
+    
+    if( !fUtils->isK0sV0(v0_1) ) continue;
+
+    fHistArmenterosPodolanskiPlot_K0s->Fill(v0_1->AlphaV0(),v0_1->PtArmV0());
+    
+    double fill_1[]={v0_1->MassK0Short(),v0_1->Pt(),fUtils->getCentClass()};
+
+    fHistK0sMassPt->Fill(v0_1->MassK0Short(),v0_1->Pt());
+
+    for(int jV0=iV0+1; jV0<nV0Pair; ++jV0){
+    
+      AliAODv0 *v0_2 = fEvent->GetV0(jV0);
+    
+      if( !fUtils->isAcceptDefaultV0(v0_2) ) continue;
+      if( !fUtils->isK0sV0(v0_2) ) continue;
+    
+      if( !fUtils->isK0sCandidate(v0_1->MassK0Short()) ) continue;
+      if( !fUtils->isK0sCandidate(v0_2->MassK0Short()) ) continue;
       
+      TLorentzVector k1;
+      TLorentzVector k2;      
+      k1.SetPtEtaPhiM(v0_1->Pt(),v0_1->Eta(),v0_1->Phi(),fUtils->fMassK0s);
+      k2.SetPtEtaPhiM(v0_2->Pt(),v0_2->Eta(),v0_2->Phi(),fUtils->fMassK0s);
+      
+      TLorentzVector k12 = k1 + k2;
+
+      double fill_12[]={k12.M(),k12.Pt(),fUtils->getCentClass()};
+      fHistK0sK0sMassPt->Fill(k12.M(),k12.Pt());
+
+    }
+
+    if (pool->IsReady()){
+
       for (Int_t iMixEvt=0; iMixEvt<pool->GetCurrentNEvents(); iMixEvt++){
-	
+
 	TObjArray* poolTracks = (TObjArray*)pool->GetEvent(iMixEvt);	
-	
-	for(Int_t iTrack2=0; iTrack2<poolTracks->GetEntriesFast(); ++iTrack2){
 
-	  AliAODTrack* __track2__ = (AliAODTrack*)poolTracks->At(iTrack2);
-	  
-	  AliAODTrack* track2 = (AliAODTrack*)__track2__->Clone();
-	  
-	  //if(!fUtils->isAcceptTrack(track2)) continue;
-	  
-	  delete track2;
+	for(Int_t iV02=0; iV02<poolTracks->GetEntriesFast(); ++iV02){
 
+	  AliAODv0* __v0_2__ = (AliAODv0*)poolTracks->At(iV02);
+	  AliAODv0* v0_2 = (AliAODv0*)__v0_2__->Clone();
+
+	  if( !fUtils->isK0sCandidate(v0_1->MassK0Short()) ) continue;
+	  if( !fUtils->isK0sCandidate(v0_2->MassK0Short()) ) continue;
+
+	  TLorentzVector k1;
+	  TLorentzVector k2;      
+	  k1.SetPtEtaPhiM(v0_1->Pt(),v0_1->Eta(),v0_1->Phi(),fUtils->fMassK0s);
+	  k2.SetPtEtaPhiM(v0_2->Pt(),v0_2->Eta(),v0_2->Phi(),fUtils->fMassK0s);
+      
+	  TLorentzVector k12 = k1 + k2;
+
+	  double fill_12[]={k12.M(),k12.Pt(),fUtils->getCentClass()};
+	  fHistMixK0sK0sMassPt->Fill(k12.M(),k12.Pt());
+	  
+	  delete v0_2;
+	  
 	}//end of loop track2
       }// end of loop iMixEvt
     
     }//poolPion->IsReady()    
     
-    fTrackArray->Add(track1);
-    
-  }//end of loop track1
+    fTrackArray->Add(v0_1);
+  }
 
   TObjArray* fTrackArrayClone = (TObjArray*)fTrackArray->Clone();
   fTrackArrayClone->SetOwner();
@@ -372,53 +833,6 @@ bool AliAnalysisTaskAODTrackPair::TrackPairAnalysisEveMixing(){
     pool->UpdatePool(fTrackArrayClone);
   }
   
-}
-
-bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
-{ 
-  
-  if( !(fInputHandler->IsEventSelected() & fTriggerMaskForSame) ) return false;
-  
-  int nV0Pair = fEvent->GetNumberOfV0s();
-
-  for(int iV0=0; iV0<nV0Pair; ++iV0){
-    
-    AliAODv0 *v0_1 = fEvent->GetV0(iV0);
-
-    if(!fUtils->isAcceptV0asK0s(v0_1)) continue;
-    
-    double fill_1[]={v0_1->MassK0Short(),v0_1->Pt(),fUtils->getCentClass()};
-    
-    fSparseK0s->Fill(fill_1);
-    
-    if( !fUtils->isK0sCandidate(v0_1->MassK0Short()) ) continue;
-    
-    for(int jV0=iV0+1; jV0<nV0Pair; ++jV0){
-    
-      AliAODv0 *v0_2 = fEvent->GetV0(jV0);
-    
-      if( !fUtils->isAcceptV0asK0s(v0_2) ) continue;
-      
-      if( !fUtils->isK0sCandidate(v0_2->MassK0Short()) ) continue;
-      
-      //fUtils->isAcceptV0Pair(v0_1,v0_2);
-
-      TLorentzVector k1;
-      TLorentzVector k2;
-      
-      k1.SetPtEtaPhiM(v0_1->Pt(),v0_1->Eta(),v0_1->Phi(),fUtils->fMassK0s);
-      k2.SetPtEtaPhiM(v0_2->Pt(),v0_2->Eta(),v0_2->Phi(),fUtils->fMassK0s);
-      
-      TLorentzVector k12 = k1 + k2;
-
-      double fill_12[]={k12.M(),k12.Pt(),fUtils->getCentClass()};
-      fSparseK0sK0s->Fill(fill_12);
-  
-    }
-
-    
-  }
-
+  delete fTrackArray;
 
 }
-
