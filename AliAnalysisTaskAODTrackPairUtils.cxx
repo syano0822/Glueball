@@ -485,10 +485,35 @@ bool AliAnalysisTaskAODTrackPairUtils::isK0sV0(AliAODv0 *v0)
   return true;
 }
 
-bool AliAnalysisTaskAODTrackPairUtils::isSameMother(AliAODTrack* track1, AliAODTrack* track2)
+int AliAnalysisTaskAODTrackPairUtils::isSameMother(AliAODTrack* track1, AliAODTrack* track2)
 {
+  
+  if(!track1) return -999;
+  if(!track2) return -999;
 
+  int label1 = track1->GetLabel();
+  int label2 = track2->GetLabel();
 
+  if(label1<1) return -999;
+  if(label2<1) return -999;
+
+  AliAODMCParticle *particle1 = (AliAODMCParticle*)fMCArray->At(label1);
+  AliAODMCParticle *particle2 = (AliAODMCParticle*)fMCArray->At(label2);
+  if(!particle1) return -999;
+  if(!particle2) return -999;
+  
+  int mom_label1 = particle1->GetMother();
+  int mom_label2 = particle2->GetMother();
+
+  if(mom_label1<1) return -999;
+  if(mom_label2<1) return -999;
+
+  if(mom_label1 != mom_label2) return -999;
+  
+  AliAODMCParticle *mom_particle = (AliAODMCParticle*)fMCArray->At(mom_label1);
+  if(!mom_particle) return -999;
+
+  return mom_particle->GetPdgCode();
 }
 
 bool AliAnalysisTaskAODTrackPairUtils::setVtxZCentPsi()

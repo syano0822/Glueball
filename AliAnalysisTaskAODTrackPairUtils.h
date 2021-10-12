@@ -33,7 +33,8 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   bool isAcceptDefaultV0(AliAODv0* v0);
   bool isK0sCandidate(float mass);
   bool isK0sV0(AliAODv0 *v0);
-  bool isSameMother(AliAODTrack* track1,AliAODTrack* track2);
+  
+  int isSameMother(AliAODTrack* track1,AliAODTrack* track2);
   
   bool hasTOF(AliAODTrack* track);
 

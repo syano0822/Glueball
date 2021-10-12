@@ -125,8 +125,55 @@ void runAnalysis(TString runPeriod = "LHC16k",
 							       0);
   */
 
-  AliAnalysisTaskAODTrackPair* trackpair = AddTaskAODTrackPair();
+  UInt_t offlineTriggerMask = AliVEvent::kINT7;
+  float min_vtxz =-10;
+  float max_vtxz = 10;
+  float min_pair_rap = -0.5;
+  float max_pair_rap =  0.5;
+  float maxTrackChi2perNDF = 4;
+  float maxTPCTrackChi2perNDF = 4;
+  float maxITSTrackChi2perNDF = 36;
+  float minTPCNClust = 70;
+  float minCrossRows = 70;
+  float minFindTPCclsFrac=0.8;
+  float minTrackPt = 0.15;
+  float maxTrackPt = 999.0;
+  float minTrackEta = -0.8;
+  float maxTrackEta = 0.8;
+  float minPionSigmaTPC = -2;
+  float maxPionSigmaTPC =  2;
+  float minKaonSigmaTPC = -2;
+  float maxKaonSigmaTPC =  2;
+  float minProtonSigmaTPC = -2;
+  float maxProtonSigmaTPC =  2;
+  float minPionSigmaTOF = -2;
+  float maxPionSigmaTOF =  2;
+  float minKaonSigmaTOF = -2;
+  float maxKaonSigmaTOF =  2;
+  float minProtonSigmaTOF = -2;
+  float maxProtonSigmaTOF =  2;
+  float minV0Radius = 0.5;
+  float maxV0Radius = 999.;
+  float minV0TrackDCA = 0.06;
+  float maxV0TrackDCA = 999.;
+  float minV0CosPoint = 0.97;
+  float maxV0CosPoint = 1.00;
+  float minPropLifetime = 0.;
+  float maxPropLifetime = 20.;
+  float minRejLambdaMass = 1.105;
+  float maxRejLambdaMass = 1.255;
+  float combPISigmaPion = 2.0;
+  float combPISigmaKaon = 2.0;
+  float combPISigmaProton = 2.0;
+  float pcm = 0.207;
+  float r0 = 0.85;
+  float width = 0.05;
+  string multi_method="V0M";
+  string primeDcaFunc="0.0105+0.0350/pow(x;1.1)";
+  bool reqTOFhit = false;
+  bool onPURej = true;
 
+  AliAnalysisTaskAODTrackPair* trackpair = AddTaskAODTrackPair(isMC);
 
   // -----------------------------------------
   //               Add Task V0Reader
@@ -176,16 +223,29 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
       plugin->SetGridDataDir("/alice/data/2017/LHC17p");    
       if(runPeriod.Contains("woSDD")) plugin->SetDataPattern("/pass1_CENT_woSDD/AOD234/ AliAOD.root");
       else                            plugin->SetDataPattern("/pass1_FAST/AOD234/ AliAOD.root");      
-      plugin->SetSplitMaxInputFileNumber(40);
+      plugin->SetSplitMaxInputFileNumber(20);
       //plugin->SetSplitMaxInputFileNumber(1);
     }
     else if (runPeriod.Contains("LHC17q")){
       plugin->SetGridDataDir("/alice/data/2017/LHC17q");    
       if(runPeriod.Contains("woSDD")) plugin->SetDataPattern("/pass1_CENT_woSDD/AOD234/ AliAOD.root");
       else                         plugin->SetDataPattern("/pass1_FAST/AOD234/ AliAOD.root");      
-      plugin->SetSplitMaxInputFileNumber(40);
+      plugin->SetSplitMaxInputFileNumber(20);
       //plugin->SetSplitMaxInputFileNumber(1);
     }
+    else if (runPeriod.Contains("LHC16q")){
+      plugin->SetGridDataDir("/alice/data/2016/LHC16q");    
+      if(runPeriod.Contains("woSDD")) plugin->SetDataPattern("/pass2_CENT_woSDD/AOD244/ AliAOD.root");
+      else                         plugin->SetDataPattern("/pass2_FAST/AOD244/ AliAOD.root");      
+      plugin->SetSplitMaxInputFileNumber(20);
+    }
+    else if (runPeriod.Contains("LHC16t")){
+      plugin->SetGridDataDir("/alice/data/2016/LHC16t");
+      if(runPeriod.Contains("woSDD")) plugin->SetDataPattern("/pass2_CENT_woSDD/AOD244/ AliAOD.root");
+      else                         plugin->SetDataPattern("/pass2_FAST/AOD244/ AliAOD.root");      
+      plugin->SetSplitMaxInputFileNumber(20);
+    }
+    
     plugin->SetRunPrefix("000");    
   }
 
@@ -225,16 +285,16 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
   }
    
   if(runPeriod.Contains("LHC17q")){//p-p 5 TeV
-    plugin->SetNrunsPerMaster(1);
+    plugin->SetNrunsPerMaster(4);
     plugin->AddRunNumber(282365);
     plugin->AddRunNumber(282366);
     plugin->AddRunNumber(282367);
   }
   
-  if(runPeriod.Contains("LHC17p") || runPeriod.Contains("LHC17l4")){//p-p 5 TeV
-    plugin->SetNrunsPerMaster(1);
+  if(runPeriod.Contains("LHC17p_FAST") || runPeriod.Contains("LHC17l4")){//p-p 5 TeV
+    plugin->SetNrunsPerMaster(4);
     plugin->AddRunNumber(282343); plugin->AddRunNumber(282342); plugin->AddRunNumber(282341); plugin->AddRunNumber(282340); plugin->AddRunNumber(282314); plugin->AddRunNumber(282313); 
-    plugin->AddRunNumber(282312); plugin->AddRunNumber(282309); plugin->AddRunNumber(282307); plugin->AddRunNumber(282306); plugin->AddRunNumber(282305); plugin->AddRunNumber(282304); 
+    plugin->AddRunNumber(282312); plugin->AddRunNumber(282309); plugin->AddRunNumber(282307); plugin->AddRunNumber(282306); plugin->AddRunNumber(282305); plugin->AddRunNumber(282304);
     plugin->AddRunNumber(282303); plugin->AddRunNumber(282302); plugin->AddRunNumber(282247); plugin->AddRunNumber(282230); plugin->AddRunNumber(282229); plugin->AddRunNumber(282227); 
     plugin->AddRunNumber(282224); plugin->AddRunNumber(282206); plugin->AddRunNumber(282189); plugin->AddRunNumber(282147); plugin->AddRunNumber(282146); plugin->AddRunNumber(282127); 
     plugin->AddRunNumber(282126); plugin->AddRunNumber(282125); plugin->AddRunNumber(282123); plugin->AddRunNumber(282122); plugin->AddRunNumber(282120); plugin->AddRunNumber(282119); 
@@ -242,6 +302,35 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
     plugin->AddRunNumber(282031); plugin->AddRunNumber(282030); plugin->AddRunNumber(282025); plugin->AddRunNumber(282021); plugin->AddRunNumber(282016); plugin->AddRunNumber(282008);
  }
 
+  if(runPeriod.Contains("LHC17p_woSDD")){//p-p 5 TeV
+    plugin->SetNrunsPerMaster(4);
+    plugin->AddRunNumber(282343); plugin->AddRunNumber(282342); plugin->AddRunNumber(282341); plugin->AddRunNumber(282340); plugin->AddRunNumber(282314); plugin->AddRunNumber(282313); 
+    plugin->AddRunNumber(282312); plugin->AddRunNumber(282309); plugin->AddRunNumber(282307); plugin->AddRunNumber(282306); plugin->AddRunNumber(282305); plugin->AddRunNumber(282304); 
+    plugin->AddRunNumber(282303); plugin->AddRunNumber(282302); plugin->AddRunNumber(282247); plugin->AddRunNumber(282230); plugin->AddRunNumber(282229); plugin->AddRunNumber(282227); 
+    plugin->AddRunNumber(282224); plugin->AddRunNumber(282206); plugin->AddRunNumber(282189); plugin->AddRunNumber(282147); plugin->AddRunNumber(282146); plugin->AddRunNumber(282127); 
+    plugin->AddRunNumber(282126); plugin->AddRunNumber(282125); plugin->AddRunNumber(282123); plugin->AddRunNumber(282122); plugin->AddRunNumber(282120); plugin->AddRunNumber(282119); 
+    plugin->AddRunNumber(282118); plugin->AddRunNumber(282098); plugin->AddRunNumber(282078); plugin->AddRunNumber(282051); plugin->AddRunNumber(282050);
+    plugin->AddRunNumber(282031); plugin->AddRunNumber(282030); plugin->AddRunNumber(282025); plugin->AddRunNumber(282021); plugin->AddRunNumber(282016); plugin->AddRunNumber(282008);
+  }
+  if(runPeriod.Contains("LHC17p_woSDD_No2")){//p-p 5 TeV
+    plugin->AddRunNumber(282099);
+  }
+  
+
+  if(runPeriod.Contains("LHC16q")){//p-Pb 5 TeV
+    plugin->SetNrunsPerMaster(4);
+    plugin->AddRunNumber(265525); plugin->AddRunNumber(265521); plugin->AddRunNumber(265501); plugin->AddRunNumber(265500); plugin->AddRunNumber(265499); plugin->AddRunNumber(265435);
+    plugin->AddRunNumber(265427); plugin->AddRunNumber(265426); plugin->AddRunNumber(265425); plugin->AddRunNumber(265424); plugin->AddRunNumber(265422); plugin->AddRunNumber(265421);
+    plugin->AddRunNumber(265420); plugin->AddRunNumber(265419); plugin->AddRunNumber(265388); plugin->AddRunNumber(265387); plugin->AddRunNumber(265385); plugin->AddRunNumber(265384);
+    plugin->AddRunNumber(265383); plugin->AddRunNumber(265381); plugin->AddRunNumber(265378); plugin->AddRunNumber(265377); plugin->AddRunNumber(265344); plugin->AddRunNumber(265343);
+    plugin->AddRunNumber(265342); plugin->AddRunNumber(265339); plugin->AddRunNumber(265338); plugin->AddRunNumber(265336); plugin->AddRunNumber(265334); plugin->AddRunNumber(265332);
+    plugin->AddRunNumber(265309);
+  }
+
+  if(runPeriod.Contains("LHC16t")){//p-Pb 5 TeV
+    plugin->SetNrunsPerMaster(4);
+    plugin->AddRunNumber(267166); plugin->AddRunNumber(267165); plugin->AddRunNumber(267164); plugin->AddRunNumber(267163);
+  }
 
   plugin->AddIncludePath("-I. -I$ROOTSYS/include -I$ALICE_ROOT -I$ALICE_ROOT/include -I$ALICE_PHYSICS/include");
 
@@ -254,7 +343,7 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
   plugin->SetAnalysisMacro("analysis_syano_"+type+"_"+runPeriod+".C");
   plugin->SetExecutable("analysis_syano_"+type+"_"+runPeriod+".sh");
   
-  if(type == "data") plugin->SetNtestFiles(1);
+  if(type == "data") plugin->SetNtestFiles(2);
   else               plugin->SetNtestFiles(10);
   
   

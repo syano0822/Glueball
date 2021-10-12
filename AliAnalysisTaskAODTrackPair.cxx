@@ -304,7 +304,7 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair(const char* name) :
 //________________________________________________________________________
 AliAnalysisTaskAODTrackPair::~AliAnalysisTaskAODTrackPair() 
 {
-  
+  cout<<"Destructure"<<endl;
 }
 //________________________________________________________________________
 void AliAnalysisTaskAODTrackPair::UserCreateOutputObjects()
@@ -425,11 +425,10 @@ void AliAnalysisTaskAODTrackPair::UserCreateOutputObjects()
 
 void AliAnalysisTaskAODTrackPair::UserExec(Option_t *)
 {  
+
   if(!Initialize()) return;
   if(!fUtils->isAcceptEvent()) return;
-  
   fEventCounter->Fill(fUtils->getCentClass());
-
   if(fOnK0sAna) V0TrackPairAnalysis();
   if(fOnKaonAna || fOnPionAna) PrimeTrackPairAnalysis();
 }
@@ -522,14 +521,15 @@ bool AliAnalysisTaskAODTrackPair::Initialize()
 
 AliEventPool* AliAnalysisTaskAODTrackPair::setPool(int id)
 {
+  /*
   float poolCent=0.;
   float poolVtxZ=0.;
   float poolPsi=0.;
-
+  
   if(onEvtMixingPoolVtxZ) poolVtxZ=fUtils->getVtxZ();
   if(onEvtMixingPoolCent) poolCent=fUtils->getCentClass();
   if(onEvtMixingPoolPsi) poolPsi=fUtils->getPsi();
-
+  
   AliEventPool* pool = NULL;;
   
   if(id==0){
@@ -543,17 +543,36 @@ AliEventPool* AliAnalysisTaskAODTrackPair::setPool(int id)
   }
 
   return pool;
+  */
+
+  return 0;
 }
 
 bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
 
-  TObjArray* fKaonTrackArray = new TObjArray();
-  TObjArray* fPionTrackArray = new TObjArray();
-  fKaonTrackArray -> SetOwner();
-  fPionTrackArray -> SetOwner();
+  TObjArray* fKaonTrackArray = NULL;
+  TObjArray* fPionTrackArray = NULL;
 
-  AliEventPool* poolKaon = setPool(0);  
-  AliEventPool* poolPion = setPool(1);  
+  if(fOnKaonAna){
+    fKaonTrackArray = new TObjArray();
+    fKaonTrackArray -> SetOwner();
+  }
+  if(fOnPionAna){
+    fPionTrackArray = new TObjArray();  
+    fPionTrackArray -> SetOwner();
+  }
+
+  float poolCent=0.;
+  float poolVtxZ=0.;
+  float poolPsi=0.;
+
+  if(onEvtMixingPoolVtxZ) poolVtxZ=fUtils->getVtxZ();
+  if(onEvtMixingPoolCent) poolCent=fUtils->getCentClass();
+  if(onEvtMixingPoolPsi) poolPsi=fUtils->getPsi(); 
+
+  AliEventPool* poolKaon = (AliEventPool*)fPoolKaonTrackMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
+  AliEventPool* poolPion = (AliEventPool*)fPoolPionTrackMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
+  
   /*
   cout<<"   poolKaon->GetCurrentNEvents():  "<<poolKaon->GetCurrentNEvents()<<endl;
   TObjArray* poolKaonTracks1 = (TObjArray*)poolKaon->GetEvent(0);
@@ -566,24 +585,30 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
   if(poolPionTracks1)cout<<"      poolPionTracks1:  "<<poolPionTracks1->GetEntriesFast()<<endl;
   if(poolPionTracks2)cout<<"      poolPionTracks2:  "<<poolPionTracks2->GetEntriesFast()<<endl;
   */
+  
   Int_t nTrack = fEvent->GetNumberOfTracks();
   
+  AliAODTrack *track1 = NULL;
+  AliAODTrack *track2 = NULL;
+
+  TObjArray* poolTracks = NULL;
+
+  TLorentzVector t1;
+  TLorentzVector t2;
+  TLorentzVector t12;
+
   for(Int_t iTrack1=0; iTrack1<nTrack; ++iTrack1){
     
-    AliAODTrack *track1 = (AliAODTrack*)fEvent->GetTrack(iTrack1);        
+    track1 = (AliAODTrack*)fEvent->GetTrack(iTrack1);        
     if(!track1) continue;
     
     if(fOnTrackQA) TrackQA(track1);
         
     for(Int_t iTrack2=iTrack1+1; iTrack2<nTrack; ++iTrack2){
       
-      AliAODTrack *track2 = (AliAODTrack*)fEvent->GetTrack(iTrack2);              
+      track2 = (AliAODTrack*)fEvent->GetTrack(iTrack2);              
       if(!track2) continue;
 
-      TLorentzVector t1;
-      TLorentzVector t2;
-      TLorentzVector t12;
-    
       if(fOnKaonAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kKaon) && fUtils->isAcceptPrimeTrack(track2,AliPID::kKaon)){
 	
 	t1.SetPtEtaPhiM(track1->Pt(),track1->Eta(),track1->Phi(),fUtils->fMassKaon);
@@ -613,14 +638,14 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
 	
 	if(fUtils->isAcceptTrackPair(t12.Rapidity(),t12.Pt())){
 	  if( track1->Charge() != track2->Charge() ){
-	    fHistULSPiPiPairMassPt->Fill(t12.M(),t12.Pt());	
+	    //fHistULSPiPiPairMassPt->Fill(t12.M(),t12.Pt());	
 	  }
 	  else {
 	    if( track1->Charge()>0 ){
-	      fHistLSppPiPiPairMassPt->Fill(t12.M(),t12.Pt());
+	      //fHistLSppPiPiPairMassPt->Fill(t12.M(),t12.Pt());
 	    }
 	    else{
-	      fHistLSmmPiPiPairMassPt->Fill(t12.M(),t12.Pt());
+	      //fHistLSmmPiPiPairMassPt->Fill(t12.M(),t12.Pt());
 	    }
 	  }
 	}       
@@ -633,16 +658,11 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
       
 	for (Int_t iMixEvt=0; iMixEvt<poolKaon->GetCurrentNEvents(); iMixEvt++){
 
-	  TObjArray* poolTracks = (TObjArray*)poolKaon->GetEvent(iMixEvt);	
+	  poolTracks = (TObjArray*)poolKaon->GetEvent(iMixEvt);	
 	
 	  for(Int_t iTrack2=0; iTrack2<poolTracks->GetEntriesFast(); ++iTrack2){
-	  
-	    AliAODTrack* __track2__ = (AliAODTrack*)poolTracks->At(iTrack2);
-	    AliAODTrack* track2 = (AliAODTrack*)__track2__->Clone();
-
-	    TLorentzVector t1;
-	    TLorentzVector t2;
-	    TLorentzVector t12;
+	    
+	    track2 = (AliAODTrack*)poolTracks->At(iTrack2);
 	    
 	    t1.SetPtEtaPhiM(track1->Pt(),track1->Eta(),track1->Phi(),fUtils->fMassKaon);
 	    t2.SetPtEtaPhiM(track2->Pt(),track2->Eta(),track2->Phi(),fUtils->fMassKaon);      
@@ -661,8 +681,6 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
 		fHistMixLSmmKKPairMassPt->Fill(t12.M(),t12.Pt());
 	      }
 	    }
-	    
-	    delete track2;
 
 	  }//end of loop track2
 	}// end of loop iMixEvt
@@ -719,11 +737,14 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
 
     if(fOnPionAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kPion)){            
       fPionTrackArray->Add(track1);
-    }    
+    }
   }//end of loop track1
   
+  TObjArray* fKaonTrackArrayClone = NULL;
+  TObjArray* fPionTrackArrayClone = NULL;
+
   if(fOnKaonAna){
-    TObjArray* fKaonTrackArrayClone = (TObjArray*)fKaonTrackArray->Clone();
+    fKaonTrackArrayClone = (TObjArray*)fKaonTrackArray->Clone();
     fKaonTrackArrayClone->SetOwner();
     //cout<<"       This event stores  "<<fKaonTrackArrayClone->GetEntriesFast()<<endl;
     if(fKaonTrackArrayClone->GetEntriesFast()>0){
@@ -732,7 +753,7 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
   }
 
   if(fOnPionAna){
-    TObjArray* fPionTrackArrayClone = (TObjArray*)fPionTrackArray->Clone();
+    fPionTrackArrayClone = (TObjArray*)fPionTrackArray->Clone();
     fPionTrackArrayClone->SetOwner();
     //cout<<"       This event stores  "<<fPionTrackArrayClone->GetEntriesFast()<<endl;
     if(fPionTrackArrayClone->GetEntriesFast()>0){
@@ -740,14 +761,15 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
     }
   }
   
-  delete fKaonTrackArray;
-  delete fPionTrackArray;
+  //delete fKaonTrackArray;
+  //delete fPionTrackArray;
  
+  return true;
 }
 
 bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
 { 
-  
+  /*
   TObjArray* fTrackArray = new TObjArray();
   fTrackArray -> SetOwner();
 
@@ -834,5 +856,6 @@ bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
   }
   
   delete fTrackArray;
-
+  */
+  return true;
 }
