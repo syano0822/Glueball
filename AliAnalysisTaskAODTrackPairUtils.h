@@ -278,6 +278,7 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   void Initialization();
   void setInit();
   bool isSameRunnumber();
+  int getTrackTruePID(AliAODTrack* track1);
   bool setVtxZCentPsi();
 
   bool setSPDTrk();
@@ -383,13 +384,27 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   float fTimeV0A;
   float fTimeV0C;
 
-  float fMassK0s = 0.497614;
-  float fMassKaon = 0.493677;
-  float fMassPion = 0.13957061;
 
   TF1* fMinArmenterosLine;
   TF1* fMaxArmenterosLine;
   double fArmenterosBandWidth;
+
+  const float fMassK0s = 0.497614;
+  const float fMassKaon = 0.493677;
+  const float fMassPion = 0.13957061;
+  
+  const int fPdgCodeOmega = 223;
+  const int fPdgCodeF980 = 9010221;
+  const int fPdgCodeF1270 = 225;
+  const int fPdgCodeF1370 = 10221;
+  const int fPdgCodeF1500 = 9030221;
+  const int fPdgCodeF1525 = 335;
+  const int fPdgCodeF1710 = 10331;
+  const int fPdgCodeK0star = 313;
+  const int fPdgCodeRho = 113;
+  const int fPdgCodeKaon = 321;
+  const int fPdgCodePion = 211;
+  const int fPdgCodeProton = 2212;
 
   ClassDef(AliAnalysisTaskAODTrackPairUtils, 1); // example of analysis
 };

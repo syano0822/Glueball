@@ -187,7 +187,26 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   TH2F* fHistMomTPCSigmaTrackQualityProtonPID;
   TH2F* fHistMomTOFSigmaTrackQualityProtonPID;
 
+  TH2F* fHistULSKKPairMassPt_FromSameSource;
+  TH2F* fHistLSppKKPairMassPt_FromSameSource;
+  TH2F* fHistLSmmKKPairMassPt_FromSameSource;
+  TH2F* fHistULSKKPairMassPt_FromF1270;
+  TH2F* fHistULSKKPairMassPt_FromF1370;
+  TH2F* fHistULSKKPairMassPt_FromF1500;
+  TH2F* fHistULSKKPairMassPt_FromF1525;
+  TH2F* fHistULSKKPairMassPt_FromF1710;  
+  TH2F* fHistULSKKPairMassPt_FromRho_MisID;
+  TH2F* fHistULSKKPairMassPt_FromOmega_MisID;
+  TH2F* fHistULSKKPairMassPt_FromK0star_MisID;
+  TH2F* fHistULSKKPairMassPt_FromF980_MisID;
+  TH2F* fHistULSKKPairMassPt_FromF1270_MisID;
   
+  TH2F* fHistULSPiPiPairMassPt_FromOmega;
+  TH2F* fHistULSPiPiPairMassPt_FromRho;
+  TH2F* fHistULSPiPiPairMassPt_FromF980;
+  TH2F* fHistULSPiPiPairMassPt_FromF1270;
+  TH2F* fHistULSPiPiPairMassPt_FromK0star_MisID;
+
   ClassDef(AliAnalysisTaskAODTrackPair, 1); // example of analysis
 };
 

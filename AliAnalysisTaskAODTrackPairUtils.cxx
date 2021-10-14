@@ -485,6 +485,22 @@ bool AliAnalysisTaskAODTrackPairUtils::isK0sV0(AliAODv0 *v0)
   return true;
 }
 
+int AliAnalysisTaskAODTrackPairUtils::getTrackTruePID(AliAODTrack* track1)
+{
+
+  if(!track1) return 0;
+
+  int label1 = track1->GetLabel();
+
+  if(label1<1) return 0;
+
+  AliAODMCParticle *particle1 = (AliAODMCParticle*)fMCArray->At(label1);
+  if(!particle1) return 0;
+  
+  return particle1->GetPdgCode();
+
+}
+
 int AliAnalysisTaskAODTrackPairUtils::isSameMother(AliAODTrack* track1, AliAODTrack* track2)
 {
   
