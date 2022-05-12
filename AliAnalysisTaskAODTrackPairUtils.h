@@ -18,7 +18,7 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   
   bool setEvent(AliAODEvent* event, AliVEventHandler* handler);
   bool setMCArray(TClonesArray* array){fMCArray = array;}
-  
+   
   void setMC(bool isMC){fIsMC = isMC;}
   
   bool isAcceptEvent();
@@ -33,9 +33,14 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   bool isAcceptDefaultV0(AliAODv0* v0);
   bool isK0sCandidate(float mass);
   bool isK0sV0(AliAODv0 *v0);
-  
+    
+  bool isDiquarkOrigin(int pdgcode);
   int isSameMother(AliAODTrack* track1,AliAODTrack* track2);
   
+  double getMotherPt(AliAODTrack* track1);
+  double getTOFSigma(AliAODTrack *track1,AliPID::EParticleType pid);
+  double getTPCSigma(AliAODTrack *track1,AliPID::EParticleType pid);
+
   bool hasTOF(AliAODTrack* track);
 
   bool isMC(){
@@ -274,6 +279,23 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
     if(!track || !fPIDResponse) return -999;
     return fPIDResponse->NumberOfSigmasTOF(track, pid);
   }
+
+  float getWeightF980(double x){
+    double norm = 1.;
+    double n = 5.849;
+    double C = 0.2298;
+    double m = 0.980;
+    return norm * (n-1)*(n-2)/(n*C*(n*C+m*(n-2))) * pow(1+(sqrt(x*x+m*m)-m)/(n*C),-n) * x;
+  }
+
+  float getWeightF1270(double x){
+    double norm = 1.;
+    double n = 5.849;
+    double C = 0.2298;
+    double m = 1.270;
+    return norm * (n-1)*(n-2)/(n*C*(n*C+m*(n-2))) * pow(1+(sqrt(x*x+m*m)-m)/(n*C),-n) * x;
+  }
+
   
   void Initialization();
   void setInit();
@@ -393,6 +415,10 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   const float fMassKaon = 0.493677;
   const float fMassPion = 0.13957061;
   
+  const int fPdgCodePhi = 333;
+  const int fPdgCodeEta = 221;
+  const int fPdgCodeEtaPrime = 331;
+  const int fPdgCodeK0s = 310;
   const int fPdgCodeOmega = 223;
   const int fPdgCodeF980 = 9010221;
   const int fPdgCodeF1270 = 225;
@@ -402,6 +428,16 @@ class AliAnalysisTaskAODTrackPairUtils : public TNamed {
   const int fPdgCodeF1710 = 10331;
   const int fPdgCodeK0star = 313;
   const int fPdgCodeRho = 113;
+  
+  const int fPdgCodeLambda1520 = 3124;
+  const int fPdgCodeK01430 = 315;
+  const int fPdgCodeKp1430 = 325;
+  const int fPdgCodeXi0star1530 = 3324;
+  const int fPdgCodeXi01820 = 123324;
+  const int fPdgCodeXip1820 = 123314;
+  const int fPdgCodeSigmastarp1385 = 3224;
+  const int fPdgCodeSigmastarm1385 = 31144;
+
   const int fPdgCodeKaon = 321;
   const int fPdgCodePion = 211;
   const int fPdgCodeProton = 2212;

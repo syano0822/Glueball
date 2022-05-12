@@ -63,10 +63,12 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair() :
   fUtils(NULL),
   fMCTrackArray(NULL),
   fIsMC(false),  
+  fOnME(false),
   fOnKaonAna(false),
   fOnPionAna(false),
   fOnK0sAna(false),
   fOnTrackQA(false),
+  fOnTrackMLTrainSampleout(false),
   fRunNumber(-99999),
   fTrackDepth(1000),
   fPoolSize(1),
@@ -78,6 +80,29 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair() :
   onEvtMixingPoolPsi(true),
   fOutputList(NULL),
   fEventCounter(NULL),
+  
+  fTreeML(NULL),
+  fTrackPt(0.),
+  fTrackP(0.),
+  fTrackTheta(0.),
+  fTrackPhi(0.),
+  fTrackLength(0.),
+  fTrackBeta(0.),
+  fTrackTrackChi2perNDF(0.),
+  fTrackTrackITSNcls(0.),
+  fTrackTrackTPCNcls(0.),
+  fTrackTrackTOFNcls(0.),
+  fTrackTrackTPCChi2(0.),
+  fTrackTrackITSChi2(0.),
+  fTrackTPCCrossedRows(0.),
+  fTrackTPCFindableNcls(0.),
+  fTrackTOFBCTime(0.),
+  fTrackTOFKinkIndex(0.),
+  fTrackDCAxy(0.),
+  fTrackDCAz(0.),
+  fTrackTPCsigmaK(0.),
+  fTrackTOFsigmaK(0.),
+  fTrackTrueKaonLabel(false),
 
   fHistArmenterosPodolanskiPlot(NULL),
   fHistArmenterosPodolanskiPlot_K0s(NULL),
@@ -101,6 +126,7 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair() :
   fHistULSPiPiPairMassPt(NULL),
   fHistLSppPiPiPairMassPt(NULL),
   fHistLSmmPiPiPairMassPt(NULL),
+
 
   fHistMixULSPiPiPairMassPt(NULL),
   fHistMixLSppPiPiPairMassPt(NULL),
@@ -161,25 +187,116 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair() :
 
   fHistULSKKPairMassPt_FromSameSource(NULL),
   fHistLSppKKPairMassPt_FromSameSource(NULL),
-  fHistLSmmKKPairMassPt_FromSameSource(NULL),
-
+  fHistLSmmKKPairMassPt_FromSameSource(NULL),  
+  fHistULSKKPairMassPt_FromPhi(NULL),
+  fHistULSKKPairMassPt_FromK0s(NULL),
+  fHistULSKKPairMassPt_FromEta(NULL),
+  fHistULSKKPairMassPt_FromEtaPrime(NULL),
+  fHistULSKKPairMassPt_FromRho(NULL),
+  fHistULSKKPairMassPt_FromOmega(NULL),
+  fHistULSKKPairMassPt_FromK0star(NULL),
+  fHistULSKKPairMassPt_FromF980(NULL),
   fHistULSKKPairMassPt_FromF1270(NULL),
   fHistULSKKPairMassPt_FromF1370(NULL),
   fHistULSKKPairMassPt_FromF1500(NULL),
   fHistULSKKPairMassPt_FromF1525(NULL),
   fHistULSKKPairMassPt_FromF1710(NULL),
-  
+  fHistULSKKPairMassPt_FromPhi_MisID(NULL),
+  fHistULSKKPairMassPt_FromK0s_MisID(NULL),
+  fHistULSKKPairMassPt_FromEta_MisID(NULL),
+  fHistULSKKPairMassPt_FromEtaPrime_MisID(NULL),
   fHistULSKKPairMassPt_FromRho_MisID(NULL),
   fHistULSKKPairMassPt_FromOmega_MisID(NULL),
   fHistULSKKPairMassPt_FromK0star_MisID(NULL),
   fHistULSKKPairMassPt_FromF980_MisID(NULL),
   fHistULSKKPairMassPt_FromF1270_MisID(NULL),
-  
-  fHistULSPiPiPairMassPt_FromOmega(NULL),
+  fHistULSKKPairMassPt_FromF1370_MisID(NULL),
+  fHistULSKKPairMassPt_FromF1500_MisID(NULL),
+  fHistULSKKPairMassPt_FromF1525_MisID(NULL),
+  fHistULSKKPairMassPt_FromF1710_MisID(NULL),
+  fHistULSKKPairMassPt_FromLambda1520(NULL),
+  fHistULSKKPairMassPt_FromK01430(NULL),
+  fHistULSKKPairMassPt_FromKp1430(NULL),
+  fHistULSKKPairMassPt_FromXi0star1530(NULL),
+  fHistULSKKPairMassPt_FromXi01820(NULL),
+  fHistULSKKPairMassPt_FromXip1820(NULL),
+  fHistULSKKPairMassPt_FromSigmastarp1385(NULL),
+  fHistULSKKPairMassPt_FromSigmastarm1385(NULL),
+  fHistULSKKPairMassPt_FromLambda1520_MisID(NULL),
+  fHistULSKKPairMassPt_FromK01430_MisID(NULL),
+  fHistULSKKPairMassPt_FromKp1430_MisID(NULL),
+  fHistULSKKPairMassPt_FromXi0star1530_MisID(NULL),
+  fHistULSKKPairMassPt_FromXi01820_MisID(NULL),
+  fHistULSKKPairMassPt_FromXip1820_MisID(NULL),
+  fHistULSKKPairMassPt_FromSigmastarp1385_MisID(NULL),
+  fHistULSKKPairMassPt_FromSigmastarm1385_MisID(NULL),
+
+  fHistULSPiPiPairMassPt_FromSameSource(NULL),
+  fHistLSppPiPiPairMassPt_FromSameSource(NULL),
+  fHistLSmmPiPiPairMassPt_FromSameSource(NULL),
+  fHistULSPiPiPairMassPt_FromPhi(NULL),
+  fHistULSPiPiPairMassPt_FromK0s(NULL),
+  fHistULSPiPiPairMassPt_FromEta(NULL),
+  fHistULSPiPiPairMassPt_FromEtaPrime(NULL),
   fHistULSPiPiPairMassPt_FromRho(NULL),
+  fHistULSPiPiPairMassPt_FromOmega(NULL),
+  fHistULSPiPiPairMassPt_FromK0star(NULL),
   fHistULSPiPiPairMassPt_FromF980(NULL),
   fHistULSPiPiPairMassPt_FromF1270(NULL),
-  fHistULSPiPiPairMassPt_FromK0star_MisID(NULL)
+  fHistULSPiPiPairMassPt_FromF1370(NULL),
+  fHistULSPiPiPairMassPt_FromF1500(NULL),
+  fHistULSPiPiPairMassPt_FromF1525(NULL),
+  fHistULSPiPiPairMassPt_FromF1710(NULL),
+  fHistULSPiPiPairMassPt_FromPhi_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromK0s_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromEta_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromEtaPrime_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromRho_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromOmega_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromK0star_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF980_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1270_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1370_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1500_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1525_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1710_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromLambda1520(NULL),
+  fHistULSPiPiPairMassPt_FromK01430(NULL),
+  fHistULSPiPiPairMassPt_FromKp1430(NULL),
+  fHistULSPiPiPairMassPt_FromXi0star1530(NULL),
+  fHistULSPiPiPairMassPt_FromXi01820(NULL),
+  fHistULSPiPiPairMassPt_FromXip1820(NULL),
+  fHistULSPiPiPairMassPt_FromSigmastarp1385(NULL),
+  fHistULSPiPiPairMassPt_FromSigmastarm1385(NULL),
+  fHistULSPiPiPairMassPt_FromLambda1520_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromK01430_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromKp1430_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromXi0star1530_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromXi01820_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromXip1820_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromSigmastarp1385_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromSigmastarm1385_MisID(NULL),
+
+  fHistRhoMassTrue(NULL),
+  fHistPhiMassTrue(NULL),
+  fHistF980MassTrue(NULL),
+  fHistF1270MassTrue(NULL),
+  fHistK0sMassTrue(NULL),
+
+  fHistPhiPtTrue(NULL),
+  fHistEtaPtTrue(NULL),
+  fHistEtaPrimePtTrue(NULL),
+  fHistRhoPtTrue(NULL),
+  fHistOmegaPtTrue(NULL),
+  fHistK0sPtTrue(NULL),
+  fHistK0starPtTrue(NULL),
+  fHistF980PtTrue(NULL),
+  fHistF1270PtTrue(NULL),
+  fHistF1500PtTrue(NULL),
+  fHistF1525PtTrue(NULL),
+  fHistF1710PtTrue(NULL)
+
+
 { 
   
 }
@@ -193,10 +310,12 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair(const char* name) :
   fUtils(NULL),
   fMCTrackArray(NULL),
   fIsMC(false),
+  fOnME(false),
   fOnKaonAna(false),
   fOnPionAna(false),
   fOnK0sAna(false),
   fOnTrackQA(false),
+  fOnTrackMLTrainSampleout(false),
   fRunNumber(-99999),
   fTrackDepth(1000),
   fPoolSize(1),
@@ -208,6 +327,30 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair(const char* name) :
   onEvtMixingPoolPsi(true),
   fOutputList(NULL),
   fEventCounter(NULL),
+
+  fTreeML(NULL),
+  fTrackPt(0.),
+  fTrackP(0.),
+  fTrackTheta(0.),
+  fTrackPhi(0.),
+  fTrackLength(0.),
+  fTrackBeta(0.),
+  fTrackTrackChi2perNDF(0.),
+  fTrackTrackITSNcls(0.),
+  fTrackTrackTPCNcls(0.),
+  fTrackTrackTOFNcls(0.),
+  fTrackTrackTPCChi2(0.),
+  fTrackTrackITSChi2(0.),
+  fTrackTPCCrossedRows(0.),
+  fTrackTPCFindableNcls(0.),
+  fTrackTOFBCTime(0.),
+  fTrackTOFKinkIndex(0.),
+  fTrackDCAxy(0.),
+  fTrackDCAz(0.),
+  fTrackTPCsigmaK(0.),
+  fTrackTOFsigmaK(0.),
+  fTrackTrueKaonLabel(false),
+
   fHistArmenterosPodolanskiPlot(NULL),
   fHistArmenterosPodolanskiPlot_K0s(NULL),
 
@@ -289,28 +432,115 @@ AliAnalysisTaskAODTrackPair::AliAnalysisTaskAODTrackPair(const char* name) :
   fHistULSKKPairMassPt_FromSameSource(NULL),
   fHistLSppKKPairMassPt_FromSameSource(NULL),
   fHistLSmmKKPairMassPt_FromSameSource(NULL),
-
+  fHistULSKKPairMassPt_FromPhi(NULL),
+  fHistULSKKPairMassPt_FromK0s(NULL),
+  fHistULSKKPairMassPt_FromEta(NULL),
+  fHistULSKKPairMassPt_FromEtaPrime(NULL),
+  fHistULSKKPairMassPt_FromRho(NULL),
+  fHistULSKKPairMassPt_FromOmega(NULL),
+  fHistULSKKPairMassPt_FromK0star(NULL),
+  fHistULSKKPairMassPt_FromF980(NULL),
   fHistULSKKPairMassPt_FromF1270(NULL),
   fHistULSKKPairMassPt_FromF1370(NULL),
   fHistULSKKPairMassPt_FromF1500(NULL),
   fHistULSKKPairMassPt_FromF1525(NULL),
   fHistULSKKPairMassPt_FromF1710(NULL),
-  
+  fHistULSKKPairMassPt_FromPhi_MisID(NULL),
+  fHistULSKKPairMassPt_FromK0s_MisID(NULL),
+  fHistULSKKPairMassPt_FromEta_MisID(NULL),
+  fHistULSKKPairMassPt_FromEtaPrime_MisID(NULL),
   fHistULSKKPairMassPt_FromRho_MisID(NULL),
   fHistULSKKPairMassPt_FromOmega_MisID(NULL),
   fHistULSKKPairMassPt_FromK0star_MisID(NULL),
   fHistULSKKPairMassPt_FromF980_MisID(NULL),
   fHistULSKKPairMassPt_FromF1270_MisID(NULL),
+  fHistULSKKPairMassPt_FromF1370_MisID(NULL),
+  fHistULSKKPairMassPt_FromF1500_MisID(NULL),
+  fHistULSKKPairMassPt_FromF1525_MisID(NULL),
+  fHistULSKKPairMassPt_FromF1710_MisID(NULL),
+  fHistULSKKPairMassPt_FromLambda1520(NULL),
+  fHistULSKKPairMassPt_FromK01430(NULL),
+  fHistULSKKPairMassPt_FromKp1430(NULL),
+  fHistULSKKPairMassPt_FromXi0star1530(NULL),
+  fHistULSKKPairMassPt_FromXi01820(NULL),
+  fHistULSKKPairMassPt_FromXip1820(NULL),
+  fHistULSKKPairMassPt_FromSigmastarp1385(NULL),
+  fHistULSKKPairMassPt_FromSigmastarm1385(NULL),
+  fHistULSKKPairMassPt_FromLambda1520_MisID(NULL),
+  fHistULSKKPairMassPt_FromK01430_MisID(NULL),
+  fHistULSKKPairMassPt_FromKp1430_MisID(NULL),
+  fHistULSKKPairMassPt_FromXi0star1530_MisID(NULL),
+  fHistULSKKPairMassPt_FromXi01820_MisID(NULL),
+  fHistULSKKPairMassPt_FromXip1820_MisID(NULL),
+  fHistULSKKPairMassPt_FromSigmastarp1385_MisID(NULL),
+  fHistULSKKPairMassPt_FromSigmastarm1385_MisID(NULL),
 
-  fHistULSPiPiPairMassPt_FromOmega(NULL),
+  fHistULSPiPiPairMassPt_FromSameSource(NULL),
+  fHistLSppPiPiPairMassPt_FromSameSource(NULL),
+  fHistLSmmPiPiPairMassPt_FromSameSource(NULL),
+  fHistULSPiPiPairMassPt_FromPhi(NULL),
+  fHistULSPiPiPairMassPt_FromK0s(NULL),
+  fHistULSPiPiPairMassPt_FromEta(NULL),
+  fHistULSPiPiPairMassPt_FromEtaPrime(NULL),
   fHistULSPiPiPairMassPt_FromRho(NULL),
+  fHistULSPiPiPairMassPt_FromOmega(NULL),
+  fHistULSPiPiPairMassPt_FromK0star(NULL),
   fHistULSPiPiPairMassPt_FromF980(NULL),
   fHistULSPiPiPairMassPt_FromF1270(NULL),
-  fHistULSPiPiPairMassPt_FromK0star_MisID(NULL)
+  fHistULSPiPiPairMassPt_FromF1370(NULL),
+  fHistULSPiPiPairMassPt_FromF1500(NULL),
+  fHistULSPiPiPairMassPt_FromF1525(NULL),
+  fHistULSPiPiPairMassPt_FromF1710(NULL),
+  fHistULSPiPiPairMassPt_FromPhi_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromK0s_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromEta_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromEtaPrime_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromRho_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromOmega_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromK0star_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF980_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1270_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1370_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1500_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1525_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromF1710_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromLambda1520(NULL),
+  fHistULSPiPiPairMassPt_FromK01430(NULL),
+  fHistULSPiPiPairMassPt_FromKp1430(NULL),
+  fHistULSPiPiPairMassPt_FromXi0star1530(NULL),
+  fHistULSPiPiPairMassPt_FromXi01820(NULL),
+  fHistULSPiPiPairMassPt_FromXip1820(NULL),
+  fHistULSPiPiPairMassPt_FromSigmastarp1385(NULL),
+  fHistULSPiPiPairMassPt_FromSigmastarm1385(NULL),
+  fHistULSPiPiPairMassPt_FromLambda1520_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromK01430_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromKp1430_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromXi0star1530_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromXi01820_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromXip1820_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromSigmastarp1385_MisID(NULL),
+  fHistULSPiPiPairMassPt_FromSigmastarm1385_MisID(NULL),
 
+  fHistRhoMassTrue(NULL),
+  fHistPhiMassTrue(NULL),
+  fHistF980MassTrue(NULL),
+  fHistF1270MassTrue(NULL),
+  fHistK0sMassTrue(NULL),
+
+  fHistPhiPtTrue(NULL),
+  fHistEtaPtTrue(NULL),
+  fHistEtaPrimePtTrue(NULL),
+  fHistRhoPtTrue(NULL),
+  fHistOmegaPtTrue(NULL),
+  fHistK0sPtTrue(NULL),
+  fHistK0starPtTrue(NULL),
+  fHistF980PtTrue(NULL),
+  fHistF1270PtTrue(NULL),
+  fHistF1500PtTrue(NULL),
+  fHistF1525PtTrue(NULL),
+  fHistF1710PtTrue(NULL)
+  
 { 
-  
-  
   double fCentBins[] = {-1,10,20,30,40,50,60,70,80,90,101};
   double fVtxBins[] = {-50,-10.5,-6,-2,0,2,6,10.5,50};
   double fPsiBins[] = {-10,-1.5,-1.0,-0.5,0,0.5,1.0,1.5,10};
@@ -367,6 +597,33 @@ void AliAnalysisTaskAODTrackPair::UserCreateOutputObjects()
   fEventCounter = new TH1F("fEventCounter","",binnum_event_hist,bins_event_hist);
   fOutputList->Add(fEventCounter);
   
+
+  if(fOnMLTrainSampleout){
+    fTreeML = new TTree("fTreeML","Tree for machine leraning for PID");
+    fTreeML->Branch("fTrackPt", &fTrackPt, "fTrackPt/F");
+    fTreeML->Branch("fTrackP", &fTrackP, "fTrackP/F");
+    fTreeML->Branch("fTrackTheta", &fTrackTheta, "fTrackTheta/F");
+    fTreeML->Branch("fTrackPhi", &fTrackPhi, "fTrackPhi/F");
+    fTreeML->Branch("fTrackLength", &fTrackLength, "fTrackLength/F");
+    fTreeML->Branch("fTrackBeta", &fTrackBeta, "fTrackBeta/F");
+    fTreeML->Branch("fTrackTrackChi2perNDF", &fTrackTrackChi2perNDF, "fTrackTrackChi2perNDF/F");
+    fTreeML->Branch("fTrackTrackITSNcls", &fTrackTrackITSNcls, "fTrackTrackITSNcls/F");
+    fTreeML->Branch("fTrackTrackTPCNcls", &fTrackTrackTPCNcls, "fTrackTrackTPCNcls/F");
+    fTreeML->Branch("fTrackTrackTOFNcls", &fTrackTrackTOFNcls, "fTrackTrackTOFNcls/F");
+    fTreeML->Branch("fTrackTrackTPCChi2", &fTrackTrackTPCChi2, "fTrackTrackTPCChi2/F");
+    fTreeML->Branch("fTrackTrackITSChi2", &fTrackTrackITSChi2, "fTrackTrackITSChi2/F");
+    fTreeML->Branch("fTrackTPCCrossedRows", &fTrackTPCCrossedRows, "fTrackTPCCrossedRows/F");
+    fTreeML->Branch("fTrackTPCFindableNcls", &fTrackTPCFindableNcls, "fTrackTPCFindableNcls/F");
+    fTreeML->Branch("fTrackTOFBCTime", &fTrackTOFBCTime, "fTrackTOFBCTime/F");
+    fTreeML->Branch("fTrackTOFKinkIndex", &fTrackTOFKinkIndex, "fTrackTOFKinkIndex/F");
+    fTreeML->Branch("fTrackDCAxy", &fTrackDCAxy, "fTrackDCAxy/F");
+    fTreeML->Branch("fTrackDCAz", &fTrackDCAz, "fTrackDCAz/F");
+    fTreeML->Branch("fTrackTPCsigmaK", &fTrackTPCsigmaK, "fTrackTPCsigmaK/F");
+    fTreeML->Branch("fTrackTOFsigmaK", &fTrackTOFsigmaK, "fTrackTOFsigmaK/F");
+    fTreeML->Branch("fTrackTrueKaonLabel", &fTrackTrueKaonLabel, "fTrackTrueKaonLabel/B");
+    fOutputList->Add(fTreeML);
+  }
+
   if(fOnK0sAna){
     fHistK0sMassPt = new TH2F("fHistK0sMassPt","fHistK0sMassPt",5000,0.0,5.0,100,0,10);
     fHistK0sK0sMassPt = new TH2F("fHistK0sK0sMassPt","fHistK0sK0sMassPt",600,1.0,4.0,100,0,10);
@@ -380,7 +637,7 @@ void AliAnalysisTaskAODTrackPair::UserCreateOutputObjects()
     fOutputList->Add(fHistArmenterosPodolanskiPlot);
     fOutputList->Add(fHistArmenterosPodolanskiPlot_K0s);
   }
-
+  
   if(fOnKaonAna){
     fHistULSKKPairMassPt = new TH2F("fHistULSKKPairMassPt","",700,0.5,4.,100,0,10);
     fHistLSppKKPairMassPt = new TH2F("fHistLSppKKPairMassPt","",700,0.5,4.,100,0,10);
@@ -388,13 +645,14 @@ void AliAnalysisTaskAODTrackPair::UserCreateOutputObjects()
     fOutputList->Add(fHistULSKKPairMassPt);
     fOutputList->Add(fHistLSppKKPairMassPt);
     fOutputList->Add(fHistLSmmKKPairMassPt);
-
-    fHistMixULSKKPairMassPt = new TH2F("fHistMixULSKKPairMassPt","",700,0.5,4.,100,0,10);
-    fHistMixLSppKKPairMassPt = new TH2F("fHistMixLSppKKPairMassPt","",700,0.5,4.,100,0,10);
-    fHistMixLSmmKKPairMassPt = new TH2F("fHistMixLSmmKKPairMassPt","",700,0.5,4.,100,0,10);
-    fOutputList->Add(fHistMixULSKKPairMassPt);
-    fOutputList->Add(fHistMixLSppKKPairMassPt);
-    fOutputList->Add(fHistMixLSmmKKPairMassPt);
+    if(fOnME){
+      fHistMixULSKKPairMassPt = new TH2F("fHistMixULSKKPairMassPt","",700,0.5,4.,100,0,10);
+      fHistMixLSppKKPairMassPt = new TH2F("fHistMixLSppKKPairMassPt","",700,0.5,4.,100,0,10);
+      fHistMixLSmmKKPairMassPt = new TH2F("fHistMixLSmmKKPairMassPt","",700,0.5,4.,100,0,10);
+      fOutputList->Add(fHistMixULSKKPairMassPt);
+      fOutputList->Add(fHistMixLSppKKPairMassPt);
+      fOutputList->Add(fHistMixLSmmKKPairMassPt);
+    }
   }
 
   if(fOnPionAna){
@@ -404,13 +662,14 @@ void AliAnalysisTaskAODTrackPair::UserCreateOutputObjects()
     fOutputList->Add(fHistULSPiPiPairMassPt);
     fOutputList->Add(fHistLSppPiPiPairMassPt);
     fOutputList->Add(fHistLSmmPiPiPairMassPt);
-    
-    fHistMixULSPiPiPairMassPt = new TH2F("fHistMixULSPiPiPairMassPt","",800,0.,4.,100,0,10);
-    fHistMixLSppPiPiPairMassPt = new TH2F("fHistMixLSppPiPiPairMassPt","",800,0.,4.,100,0,10);
-    fHistMixLSmmPiPiPairMassPt = new TH2F("fHistMixLSmmPiPiPairMassPt","",800,0.,4.,100,0,10);
-    fOutputList->Add(fHistMixULSPiPiPairMassPt);
-    fOutputList->Add(fHistMixLSppPiPiPairMassPt);
-    fOutputList->Add(fHistMixLSmmPiPiPairMassPt);
+    if(fOnME){
+      fHistMixULSPiPiPairMassPt = new TH2F("fHistMixULSPiPiPairMassPt","",800,0.,4.,100,0,10);
+      fHistMixLSppPiPiPairMassPt = new TH2F("fHistMixLSppPiPiPairMassPt","",800,0.,4.,100,0,10);
+      fHistMixLSmmPiPiPairMassPt = new TH2F("fHistMixLSmmPiPiPairMassPt","",800,0.,4.,100,0,10);
+      fOutputList->Add(fHistMixULSPiPiPairMassPt);
+      fOutputList->Add(fHistMixLSppPiPiPairMassPt);
+      fOutputList->Add(fHistMixLSmmPiPiPairMassPt);
+    }
   }
 
   if(fOnTrackQA){
@@ -463,46 +722,236 @@ void AliAnalysisTaskAODTrackPair::UserCreateOutputObjects()
   }
 
   if(fIsMC){    
-    if(fOnKaonAna){
-      fHistULSKKPairMassPt_FromSameSource = new TH2F("fHistULSKKPairMassPt_FromSameSource","",700,0.5,4.,100,0,10);
-      fHistLSppKKPairMassPt_FromSameSource = new TH2F("fHistLSppKKPairMassPt_FromSameSource","",700,0.5,4.,100,0,10);
-      fHistLSmmKKPairMassPt_FromSameSource = new TH2F("fHistLSmmKKPairMassPt_FromSameSource","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromF1270 = new TH2F("fHistULSKKPairMassPt_FromF1270","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromF1370 = new TH2F("fHistULSKKPairMassPt_FromF1370","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromF1500 = new TH2F("fHistULSKKPairMassPt_FromF1500","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromF1525 = new TH2F("fHistULSKKPairMassPt_FromF1525","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromF1710 = new TH2F("fHistULSKKPairMassPt_FromF1710","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromF1270 = new TH2F("fHistULSKKPairMassPt_FromF1270","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromRho_MisID = new TH2F("fHistULSKKPairMassPt_FromRho_MisID","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromOmega_MisID = new TH2F("fHistULSKKPairMassPt_FromOmega_MisID","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromK0star_MisID = new TH2F("fHistULSKKPairMassPt_FromK0star_MisID","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromF980_MisID = new TH2F("fHistULSKKPairMassPt_FromF980_MisID","",700,0.5,4.,100,0,10);
-      fHistULSKKPairMassPt_FromF1270_MisID = new TH2F("fHistULSKKPairMassPt_FromF1270_MisID","",700,0.5,4.,100,0,10);
+
+    double addbin = 5;
+    
+    fHistRhoMassTrue = new TH1F("fHistRhoMassTrue","",700*addbin,0.,3.5);
+    fHistPhiMassTrue = new TH1F("fHistPhiMassTrue","",700*addbin,0.,3.5);
+    fHistF980MassTrue = new TH1F("fHistF980MassTrue","",700*addbin,0.,3.5);
+    fHistF1270MassTrue = new TH1F("fHistF1270MassTrue","",700*addbin,0.0,3.5);
+    fHistK0sMassTrue = new TH1F("fHistK0sMassTrue","",700*addbin,0.,3.5);
+
+    fOutputList->Add(fHistRhoMassTrue);
+    fOutputList->Add(fHistPhiMassTrue);
+    fOutputList->Add(fHistF980MassTrue);
+    fOutputList->Add(fHistF1270MassTrue);
+    fOutputList->Add(fHistK0sMassTrue);
+
+    fHistPhiPtTrue = new TH1F("fHistPhiPtTrue","",300,0,30);
+    fHistEtaPtTrue = new TH1F("fHistEtaPtTrue","",300,0,30);
+    fHistEtaPrimePtTrue = new TH1F("fHistEtaPrimePtTrue","",300,0,30);
+    fHistRhoPtTrue = new TH1F("fHistRhoPtTrue","",300,0,30);
+    fHistOmegaPtTrue = new TH1F("fHistOmegaPtTrue","",300,0,30);
+    fHistK0sPtTrue = new TH1F("fHistK0sPtTrue","",300,0,30);
+    fHistK0starPtTrue = new TH1F("fHistK0starPtTrue","",300,0,30);
+    fHistF980PtTrue = new TH1F("fHistF980PtTrue","",300,0,30);
+    fHistF1270PtTrue = new TH1F("fHistF1270PtTrue","",300,0,30);
+    fHistF1500PtTrue = new TH1F("fHistF1500PtTrue","",300,0,30);
+    fHistF1525PtTrue = new TH1F("fHistF1525PtTrue","",300,0,30);
+    fHistF1710PtTrue = new TH1F("fHistF1710PtTrue","",300,0,30);
+	
+    fOutputList->Add(fHistPhiPtTrue);
+    fOutputList->Add(fHistEtaPtTrue);
+    fOutputList->Add(fHistEtaPrimePtTrue);
+    fOutputList->Add(fHistRhoPtTrue);
+    fOutputList->Add(fHistOmegaPtTrue);
+    fOutputList->Add(fHistK0sPtTrue);
+    fOutputList->Add(fHistK0starPtTrue);
+    fOutputList->Add(fHistF980PtTrue);
+    fOutputList->Add(fHistF1270PtTrue);
+    fOutputList->Add(fHistF1500PtTrue);
+    fOutputList->Add(fHistF1525PtTrue);
+    fOutputList->Add(fHistF1710PtTrue);
+
+    if(fOnKaonAna){      
+      fHistULSKKPairMassPt_FromSameSource = new TH2F("fHistULSKKPairMassPt_FromSameSource","",700*addbin,0.5,4.,100,0,10);
+      fHistLSppKKPairMassPt_FromSameSource = new TH2F("fHistLSppKKPairMassPt_FromSameSource","",700*addbin,0.5,4.,100,0,10);
+      fHistLSmmKKPairMassPt_FromSameSource = new TH2F("fHistLSmmKKPairMassPt_FromSameSource","",700*addbin,0.5,4.,100,0,10);
       fOutputList->Add(fHistULSKKPairMassPt_FromSameSource);
       fOutputList->Add(fHistLSppKKPairMassPt_FromSameSource);
       fOutputList->Add(fHistLSmmKKPairMassPt_FromSameSource);
+      
+      fHistULSKKPairMassPt_FromPhi = new TH2F("fHistULSKKPairMassPt_FromPhi","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromK0s = new TH2F("fHistULSKKPairMassPt_FromK0s","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromEta = new TH2F("fHistULSKKPairMassPt_FromEta","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromEtaPrime = new TH2F("fHistULSKKPairMassPt_FromEtaPrime","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromRho = new TH2F("fHistULSKKPairMassPt_FromRho","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromOmega = new TH2F("fHistULSKKPairMassPt_FromOmega","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromK0star = new TH2F("fHistULSKKPairMassPt_FromK0star","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF980 = new TH2F("fHistULSKKPairMassPt_FromF980","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1270 = new TH2F("fHistULSKKPairMassPt_FromF1270","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1370 = new TH2F("fHistULSKKPairMassPt_FromF1370","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1500 = new TH2F("fHistULSKKPairMassPt_FromF1500","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1525 = new TH2F("fHistULSKKPairMassPt_FromF1525","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1710 = new TH2F("fHistULSKKPairMassPt_FromF1710","",700*addbin,0.5,4.,100,0,10);      
+      fHistULSKKPairMassPt_FromLambda1520 = new TH2F("fHistULSKKPairMassPt_FromLambda1520","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromK01430 = new TH2F("fHistULSKKPairMassPt_FromK01430","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromKp1430 = new TH2F("fHistULSKKPairMassPt_FromKp1430","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromXi0star1530 = new TH2F("fHistULSKKPairMassPt_FromXi0star1530","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromXi01820 = new TH2F("fHistULSKKPairMassPt_FromXi1820","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromXip1820 = new TH2F("fHistULSKKPairMassPt_FromXip1820","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromSigmastarp1385 = new TH2F("fHistULSKKPairMassPt_FromSigmastarp1385","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromSigmastarm1385 = new TH2F("fHistULSKKPairMassPt_FromSigmastarm1385","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromPhi_MisID = new TH2F("fHistULSKKPairMassPt_FromPhi_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromK0s_MisID = new TH2F("fHistULSKKPairMassPt_FromK0s_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromEta_MisID = new TH2F("fHistULSKKPairMassPt_FromEta_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromEtaPrime_MisID = new TH2F("fHistULSKKPairMassPt_FromEtaPrime_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromRho_MisID = new TH2F("fHistULSKKPairMassPt_FromRho_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromOmega_MisID = new TH2F("fHistULSKKPairMassPt_FromOmega_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromK0star_MisID = new TH2F("fHistULSKKPairMassPt_FromK0star_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF980_MisID = new TH2F("fHistULSKKPairMassPt_FromF980_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1270_MisID = new TH2F("fHistULSKKPairMassPt_FromF1270_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1370_MisID = new TH2F("fHistULSKKPairMassPt_FromF1370_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1500_MisID = new TH2F("fHistULSKKPairMassPt_FromF1500_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1525_MisID = new TH2F("fHistULSKKPairMassPt_FromF1525_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromF1710_MisID = new TH2F("fHistULSKKPairMassPt_FromF1710_MisID","",700*addbin,0.5,4.,100,0,10);      
+      fHistULSKKPairMassPt_FromLambda1520_MisID = new TH2F("fHistULSKKPairMassPt_FromLambda1520_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromK01430_MisID = new TH2F("fHistULSKKPairMassPt_FromK01430_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromKp1430_MisID = new TH2F("fHistULSKKPairMassPt_FromKp1430_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromXi0star1530_MisID = new TH2F("fHistULSKKPairMassPt_FromXi0star1530_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromXi01820_MisID = new TH2F("fHistULSKKPairMassPt_FromXi1820_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromXip1820_MisID = new TH2F("fHistULSKKPairMassPt_FromXip1820_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromSigmastarp1385_MisID = new TH2F("fHistULSKKPairMassPt_FromSigmastarp1385_MisID","",700*addbin,0.5,4.,100,0,10);
+      fHistULSKKPairMassPt_FromSigmastarm1385_MisID = new TH2F("fHistULSKKPairMassPt_FromSigmastarm1385_MisID","",700*addbin,0.5,4.,100,0,10);      
+      fOutputList->Add(fHistULSKKPairMassPt_FromPhi);
+      fOutputList->Add(fHistULSKKPairMassPt_FromK0s);
+      fOutputList->Add(fHistULSKKPairMassPt_FromEta);
+      fOutputList->Add(fHistULSKKPairMassPt_FromEtaPrime);
+      fOutputList->Add(fHistULSKKPairMassPt_FromRho);
+      fOutputList->Add(fHistULSKKPairMassPt_FromOmega);
+      fOutputList->Add(fHistULSKKPairMassPt_FromK0star);
+      fOutputList->Add(fHistULSKKPairMassPt_FromF980);
       fOutputList->Add(fHistULSKKPairMassPt_FromF1270);
       fOutputList->Add(fHistULSKKPairMassPt_FromF1370);
       fOutputList->Add(fHistULSKKPairMassPt_FromF1500);
       fOutputList->Add(fHistULSKKPairMassPt_FromF1525);
       fOutputList->Add(fHistULSKKPairMassPt_FromF1710);  
+      fOutputList->Add(fHistULSKKPairMassPt_FromLambda1520);
+      fOutputList->Add(fHistULSKKPairMassPt_FromK01430);
+      fOutputList->Add(fHistULSKKPairMassPt_FromKp1430);
+      fOutputList->Add(fHistULSKKPairMassPt_FromXi0star1530);
+      fOutputList->Add(fHistULSKKPairMassPt_FromXi01820);
+      fOutputList->Add(fHistULSKKPairMassPt_FromXip1820);
+      fOutputList->Add(fHistULSKKPairMassPt_FromSigmastarp1385);
+      fOutputList->Add(fHistULSKKPairMassPt_FromSigmastarm1385);
+      fOutputList->Add(fHistULSKKPairMassPt_FromPhi_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromK0s_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromEta_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromEtaPrime_MisID);
       fOutputList->Add(fHistULSKKPairMassPt_FromRho_MisID);
       fOutputList->Add(fHistULSKKPairMassPt_FromOmega_MisID);
       fOutputList->Add(fHistULSKKPairMassPt_FromK0star_MisID);
       fOutputList->Add(fHistULSKKPairMassPt_FromF980_MisID);
       fOutputList->Add(fHistULSKKPairMassPt_FromF1270_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromF1370_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromF1500_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromF1525_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromF1710_MisID);  
+      fOutputList->Add(fHistULSKKPairMassPt_FromLambda1520_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromK01430_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromKp1430_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromXi0star1530_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromXi01820_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromXip1820_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromSigmastarp1385_MisID);
+      fOutputList->Add(fHistULSKKPairMassPt_FromSigmastarm1385_MisID);
+
+      
     }
     if(fOnPionAna){
-      fHistULSPiPiPairMassPt_FromOmega = new TH2F("fHistULSPiPiPairMassPt_FromOmega","",800,0.,4.,100,0,10);
-      fHistULSPiPiPairMassPt_FromRho = new TH2F("fHistULSPiPiPairMassPt_FromRho","",800,0.,4.,100,0,10);
-      fHistULSPiPiPairMassPt_FromF980 = new TH2F("fHistULSPiPiPairMassPt_FromF980","",800,0.,4.,100,0,10);
-      fHistULSPiPiPairMassPt_FromF1270 = new TH2F("fHistULSPiPiPairMassPt_FromF1270","",800,0.,4.,100,0,10);
-      fHistULSPiPiPairMassPt_FromK0star_MisID = new TH2F("fHistULSPiPiPairMassPt_FromK0star_MisID","",800,0.,4.,100,0,10);      
-      fOutputList->Add(fHistULSPiPiPairMassPt_FromOmega);
+      fHistULSPiPiPairMassPt_FromSameSource = new TH2F("fHistULSPiPiPairMassPt_FromSameSource","",800*addbin,0.,4.,100,0,10);
+      fHistLSppPiPiPairMassPt_FromSameSource = new TH2F("fHistLSppPiPiPairMassPt_FromSameSource","",800*addbin,0.,4.,100,0,10);
+      fHistLSmmPiPiPairMassPt_FromSameSource = new TH2F("fHistLSmmPiPiPairMassPt_FromSameSource","",800*addbin,0.,4.,100,0,10);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromSameSource);
+      fOutputList->Add(fHistLSppPiPiPairMassPt_FromSameSource);
+      fOutputList->Add(fHistLSmmPiPiPairMassPt_FromSameSource);
+
+      
+      fHistULSPiPiPairMassPt_FromPhi = new TH2F("fHistULSPiPiPairMassPt_FromPhi","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromK0s = new TH2F("fHistULSPiPiPairMassPt_FromK0s","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromEta = new TH2F("fHistULSPiPiPairMassPt_FromEta","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromEtaPrime = new TH2F("fHistULSPiPiPairMassPt_FromEtaPrime","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromRho = new TH2F("fHistULSPiPiPairMassPt_FromRho","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromOmega = new TH2F("fHistULSPiPiPairMassPt_FromOmega","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromK0star = new TH2F("fHistULSPiPiPairMassPt_FromK0star","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF980 = new TH2F("fHistULSPiPiPairMassPt_FromF980","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1270 = new TH2F("fHistULSPiPiPairMassPt_FromF1270","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1370 = new TH2F("fHistULSPiPiPairMassPt_FromF1370","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1500 = new TH2F("fHistULSPiPiPairMassPt_FromF1500","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1525 = new TH2F("fHistULSPiPiPairMassPt_FromF1525","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1710 = new TH2F("fHistULSPiPiPairMassPt_FromF1710","",800*addbin,0.,4.,100,0,10);      
+      fHistULSPiPiPairMassPt_FromLambda1520 = new TH2F("fHistULSPiPiPairMassPt_FromLambda1520","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromK01430 = new TH2F("fHistULSPiPiPairMassPt_FromK01430","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromKp1430 = new TH2F("fHistULSPiPiPairMassPt_FromKp1430","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromXi0star1530 = new TH2F("fHistULSPiPiPairMassPt_FromXi0star1530","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromXi01820 = new TH2F("fHistULSPiPiPairMassPt_FromXi1820","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromXip1820 = new TH2F("fHistULSPiPiPairMassPt_FromXip1820","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromSigmastarp1385 = new TH2F("fHistULSPiPiPairMassPt_FromSigmastarp1385","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromSigmastarm1385 = new TH2F("fHistULSPiPiPairMassPt_FromSigmastarm1385","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromPhi_MisID = new TH2F("fHistULSPiPiPairMassPt_FromPhi_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromK0s_MisID = new TH2F("fHistULSPiPiPairMassPt_FromK0s_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromEta_MisID = new TH2F("fHistULSPiPiPairMassPt_FromEta_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromEtaPrime_MisID = new TH2F("fHistULSPiPiPairMassPt_FromEtaPrime_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromRho_MisID = new TH2F("fHistULSPiPiPairMassPt_FromRho_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromOmega_MisID = new TH2F("fHistULSPiPiPairMassPt_FromOmega_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromK0star_MisID = new TH2F("fHistULSPiPiPairMassPt_FromK0star_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF980_MisID = new TH2F("fHistULSPiPiPairMassPt_FromF980_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1270_MisID = new TH2F("fHistULSPiPiPairMassPt_FromF1270_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1370_MisID = new TH2F("fHistULSPiPiPairMassPt_FromF1370_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1500_MisID = new TH2F("fHistULSPiPiPairMassPt_FromF1500_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1525_MisID = new TH2F("fHistULSPiPiPairMassPt_FromF1525_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromF1710_MisID = new TH2F("fHistULSPiPiPairMassPt_FromF1710_MisID","",800*addbin,0.,4.,100,0,10);      
+      fHistULSPiPiPairMassPt_FromLambda1520_MisID = new TH2F("fHistULSPiPiPairMassPt_FromLambda1520_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromK01430_MisID = new TH2F("fHistULSPiPiPairMassPt_FromK01430_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromKp1430_MisID = new TH2F("fHistULSPiPiPairMassPt_FromKp1430_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromXi0star1530_MisID = new TH2F("fHistULSPiPiPairMassPt_FromXi0star1530_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromXi01820_MisID = new TH2F("fHistULSPiPiPairMassPt_FromXi1820_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromXip1820_MisID = new TH2F("fHistULSPiPiPairMassPt_FromXip1820_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromSigmastarp1385_MisID = new TH2F("fHistULSPiPiPairMassPt_FromSigmastarp1385_MisID","",800*addbin,0.,4.,100,0,10);
+      fHistULSPiPiPairMassPt_FromSigmastarm1385_MisID = new TH2F("fHistULSPiPiPairMassPt_FromSigmastarm1385_MisID","",800*addbin,0.,4.,100,0,10);      
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromPhi);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromK0s);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromEta);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromEtaPrime);
       fOutputList->Add(fHistULSPiPiPairMassPt_FromRho);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromOmega);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromK0star);
       fOutputList->Add(fHistULSPiPiPairMassPt_FromF980);
       fOutputList->Add(fHistULSPiPiPairMassPt_FromF1270);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF1370);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF1500);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF1525);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF1710);  
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromLambda1520);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromK01430);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromKp1430);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromXi0star1530);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromXi01820);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromXip1820);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromSigmastarp1385);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromSigmastarm1385);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromPhi_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromK0s_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromEta_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromEtaPrime_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromRho_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromOmega_MisID);
       fOutputList->Add(fHistULSPiPiPairMassPt_FromK0star_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF980_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF1270_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF1370_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF1500_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF1525_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromF1710_MisID);  
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromLambda1520_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromK01430_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromKp1430_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromXi0star1530_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromXi01820_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromXip1820_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromSigmastarp1385_MisID);
+      fOutputList->Add(fHistULSPiPiPairMassPt_FromSigmastarm1385_MisID);
+
     }
   }
 
@@ -518,8 +967,73 @@ void AliAnalysisTaskAODTrackPair::UserExec(Option_t *)
   if(!Initialize()) return;
   if(!fUtils->isAcceptEvent()) return;
   fEventCounter->Fill(fUtils->getCentClass());
+  if(fIsMC)processMC();
   if(fOnK0sAna) V0TrackPairAnalysis();
-  if(fOnKaonAna || fOnPionAna) PrimeTrackPairAnalysis();
+  if(fOnKaonAna || fOnPionAna) primeTrackPairAnalysis();
+  RegisterTreeForTrackPID();
+}
+
+bool AliAnalysisTaskAODTrackPair::RegisterTreeForTrackPID()
+{
+
+  Int_t nTrack = fEvent->GetNumberOfTracks();
+
+  AliAODTrack *track = NULL;
+  AliAODMCParticle* particle = NULL;
+
+  for(Int_t iTrack1=0; iTrack1<nTrack; ++iTrack1){
+
+    track = (AliAODTrack*)fEvent->GetTrack(iTrack1);
+    
+    if(!track) continue;
+
+    if( !fUtils->isAcceptPrimeTrackQuality(track) ) continue;
+
+    float sigTOF =track->GetTOFsignal();
+    float length =track->GetIntegratedLength();
+    float beta =(sigTOF>0)?(double)length/ (2.99792457999999984e-02 * sigTOF):0;
+
+    float dca_xy=9999;
+    float dca_z=9999;
+    track->GetImpactParameters(dca_xy,dca_z);
+    
+    AliTOFHeader * tofHeader = (AliTOFHeader*)track->GetTOFHeader();
+
+    fTrackPt = track->Pt();
+    fTrackP = track->P();
+    fTrackTheta = track->Theta();
+    fTrackPhi = track->Phi();
+    fTrackLength = track->GetIntegratedLength();
+    fTrackBeta = beta;
+    fTrackTrackChi2perNDF = track->Chi2perNDF();
+    fTrackTrackITSNcls = track->GetITSNcls();
+    fTrackTrackTPCNcls = track->GetTPCNcls();
+    fTrackTrackTOFNcls = tofHeader->GetNumberOfTOFclusters();
+    fTrackTrackTPCChi2 = track->GetTPCchi2();
+    fTrackTrackITSChi2 = track->GetITSchi2();
+    fTrackTPCCrossedRows = track->GetTPCCrossedRows();
+    fTrackTPCFindableNcls = track->GetTPCNclsF();
+    fTrackTOFBCTime = track->GetTOFBunchCrossing();
+    fTrackTOFKinkIndex = track->GetKinkIndex(0);
+    fTrackDCAxy = dca_xy;
+    fTrackDCAz = dca_z;
+    fTrackTPCsigmaK = fUtils->getTPCSigma(track,AliPID::kKaon);
+    fTrackTOFsigmaK = fUtils->getTOFSigma(track,AliPID::kKaon);
+    
+    fTrackTrueKaonLabel = false;
+
+    if(fIsMC && fMCTrackArray && track->GetLabel()>0){
+      particle = (AliAODMCParticle*)fMCTrackArray->At(track->GetLabel());
+      if(fabs(particle->GetPdgCode()) == fUtils->fPdgCodeKaon){
+	fTrackTrueKaonLabel = true;
+      }
+    }
+
+    fTreeML->Fill();
+    
+  }
+
+  return true;
 }
 
 bool AliAnalysisTaskAODTrackPair::TrackQA(AliAODTrack* track)
@@ -598,55 +1112,133 @@ bool AliAnalysisTaskAODTrackPair::Initialize()
     TList* headerList = mcHeader->GetCocktailHeaders();
     if(!headerList) return false;
     //Double_t impPar = mcHeader->GetImpactParameter();    
-    TClonesArray *mcarray = dynamic_cast<TClonesArray*>(fEvent->FindListObject(AliAODMCParticle::StdBranchName()));
-    if(!mcarray) return false;
-    fUtils->setMCArray(mcarray);
+    fMCTrackArray = dynamic_cast<TClonesArray*>(fEvent->FindListObject(AliAODMCParticle::StdBranchName()));
+    if(!fMCTrackArray) return false;
+    fUtils->setMCArray(fMCTrackArray);
   }
   
   return true;
 
 }
 
-
-AliEventPool* AliAnalysisTaskAODTrackPair::setPool(int id)
-{
-  /*
-  float poolCent=0.;
-  float poolVtxZ=0.;
-  float poolPsi=0.;
+bool AliAnalysisTaskAODTrackPair::processMC(){
   
-  if(onEvtMixingPoolVtxZ) poolVtxZ=fUtils->getVtxZ();
-  if(onEvtMixingPoolCent) poolCent=fUtils->getCentClass();
-  if(onEvtMixingPoolPsi) poolPsi=fUtils->getPsi();
-  
-  AliEventPool* pool = NULL;;
-  
-  if(id==0){
-    pool = (AliEventPool*)fPoolKaonTrackMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
-  }
-  else if(id==1){
-    pool = (AliEventPool*)fPoolPionTrackMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
-  }
-  else{
-    pool = (AliEventPool*)fPoolK0sMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
+  if(!fMCTrackArray) return false;  
+
+  AliAODMCParticle *particle1;
+  AliAODMCParticle *dauparticle1;
+  AliAODMCParticle *dauparticle2;
+
+  TLorentzVector t1;
+  TLorentzVector t2;
+  TLorentzVector t12;
+     
+  for(Int_t iTrack1=0; iTrack1<fMCTrackArray->GetSize(); ++iTrack1){
+
+    particle1 = (AliAODMCParticle*)fMCTrackArray->At(iTrack1);
+
+    if(!particle1) continue;
+    if(!TDatabasePDG::Instance()->GetParticle(particle1->GetPdgCode())) continue;
+
+    int pdgcode = particle1->GetPdgCode();
+    
+    if(fabs(particle1->Y())<0.5){
+      if(pdgcode == fUtils->fPdgCodePhi){
+	fHistPhiPtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeEta){
+	fHistEtaPtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeEtaPrime){
+	fHistEtaPrimePtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeRho){
+	fHistRhoPtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeOmega){
+	fHistOmegaPtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeK0s){
+	fHistK0sPtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeK0star){
+	fHistK0starPtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeF980){
+	fHistF980PtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeF1270){
+	fHistF1270PtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeF1500){
+	fHistF1500PtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeF1525){
+	fHistF1525PtTrue->Fill(particle1->Pt());
+      }
+      else if(pdgcode == fUtils->fPdgCodeF1710){
+	fHistF1710PtTrue->Fill(particle1->Pt());
+      }
+
+
+    }
+
+    int ndau = particle1->GetDaughterLast() - particle1->GetDaughterFirst() +1;
+
+    if(ndau<2) continue;
+
+    dauparticle1 = (AliAODMCParticle*)fMCTrackArray->At(particle1->GetDaughterLabel(0)); 
+    dauparticle2 = (AliAODMCParticle*)fMCTrackArray->At(particle1->GetDaughterLabel(1)); 
+    if(!dauparticle1) continue;
+    if(!dauparticle2) continue;
+
+    if(fabs(dauparticle1->GetPdgCode())==fUtils->fPdgCodePion && fabs(dauparticle2->GetPdgCode())==fUtils->fPdgCodePion){
+      t1.SetPtEtaPhiM(dauparticle1->Pt(),dauparticle1->Eta(),dauparticle1->Phi(),fUtils->fMassPion);
+      t2.SetPtEtaPhiM(dauparticle2->Pt(),dauparticle2->Eta(),dauparticle2->Phi(),fUtils->fMassPion);      
+    }
+    else if(fabs(dauparticle1->GetPdgCode())==fUtils->fPdgCodeKaon && fabs(dauparticle2->GetPdgCode())==fUtils->fPdgCodeKaon){
+      t1.SetPtEtaPhiM(dauparticle1->Pt(),dauparticle1->Eta(),dauparticle1->Phi(),fUtils->fMassKaon);
+      t2.SetPtEtaPhiM(dauparticle2->Pt(),dauparticle2->Eta(),dauparticle2->Phi(),fUtils->fMassKaon);      
+    }
+    else {
+      continue;
+    }
+
+    t12 = t1 + t2;  
+
+    if(pdgcode == fUtils->fPdgCodePhi && ndau==2){
+      fHistPhiMassTrue -> Fill(t12.M());
+    }
+    else if(pdgcode == fUtils->fPdgCodeRho && ndau==2){
+      fHistRhoMassTrue -> Fill(t12.M());
+    }
+    else if(pdgcode == fUtils->fPdgCodeF980 && ndau==2){
+      fHistF980MassTrue -> Fill(t12.M());
+    }
+    else if(pdgcode == fUtils->fPdgCodeF1270 && ndau==2){
+      fHistF1270MassTrue -> Fill(t12.M());
+    }
+    else if(pdgcode == fUtils->fPdgCodeK0s && ndau==2){
+      fHistK0sMassTrue -> Fill(t12.M());
+    }
+    else{
+      continue;
+    }
   }
 
-  return pool;
-  */
-
-  return 0;
+  return true;
 }
 
-bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
+bool AliAnalysisTaskAODTrackPair::primeTrackPairAnalysis(){
 
   TObjArray* fKaonTrackArray = NULL;
   TObjArray* fPionTrackArray = NULL;
 
-  if(fOnKaonAna){
+  if(fOnME && fOnKaonAna){
     fKaonTrackArray = new TObjArray();
     fKaonTrackArray -> SetOwner();
   }
-  if(fOnPionAna){
+  if(fOnME && fOnPionAna){
     fPionTrackArray = new TObjArray();  
     fPionTrackArray -> SetOwner();
   }
@@ -654,33 +1246,21 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
   float poolCent=0.;
   float poolVtxZ=0.;
   float poolPsi=0.;
-
-  if(onEvtMixingPoolVtxZ) poolVtxZ=fUtils->getVtxZ();
-  if(onEvtMixingPoolCent) poolCent=fUtils->getCentClass();
-  if(onEvtMixingPoolPsi) poolPsi=fUtils->getPsi(); 
+  if(fOnME){
+    if(onEvtMixingPoolVtxZ) poolVtxZ=fUtils->getVtxZ();
+    if(onEvtMixingPoolCent) poolCent=fUtils->getCentClass();
+    if(onEvtMixingPoolPsi) poolPsi=fUtils->getPsi(); 
+  }    
 
   AliEventPool* poolKaon = NULL;
   AliEventPool* poolPion = NULL;
   
-  if(fOnKaonAna){
+  if(fOnME && fOnKaonAna){
     poolKaon = (AliEventPool*)fPoolKaonTrackMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
   }
-  if(fOnPionAna){
+  if(fOnME && fOnPionAna){
     poolPion = (AliEventPool*)fPoolPionTrackMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
   }
-
-  /*
-  cout<<"   poolKaon->GetCurrentNEvents():  "<<poolKaon->GetCurrentNEvents()<<endl;
-  TObjArray* poolKaonTracks1 = (TObjArray*)poolKaon->GetEvent(0);
-  TObjArray* poolKaonTracks2 = (TObjArray*)poolKaon->GetEvent(1);
-  if(poolKaonTracks1)cout<<"      poolKaonTracks1:  "<<poolKaonTracks1->GetEntriesFast()<<endl;
-  if(poolKaonTracks2)cout<<"      poolKaonTracks2:  "<<poolKaonTracks2->GetEntriesFast()<<endl;
-  cout<<"   poolPion->GetCurrentNEvents():  "<<poolPion->GetCurrentNEvents()<<endl;
-  TObjArray* poolPionTracks1 = (TObjArray*)poolPion->GetEvent(0);
-  TObjArray* poolPionTracks2 = (TObjArray*)poolPion->GetEvent(1);
-  if(poolPionTracks1)cout<<"      poolPionTracks1:  "<<poolPionTracks1->GetEntriesFast()<<endl;
-  if(poolPionTracks2)cout<<"      poolPionTracks2:  "<<poolPionTracks2->GetEntriesFast()<<endl;
-  */
   
   Int_t nTrack = fEvent->GetNumberOfTracks();
   
@@ -726,27 +1306,80 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
 	}
 
 	if(fIsMC){
-	  if(fabs(fUtils->isSameMother(track1,track2))>100){	    
+	  if(fabs(fUtils->isSameMother(track1,track2))>100 && fUtils->isDiquarkOrigin(fUtils->isSameMother(track1,track2))==false ){	    
+	    
 	    if(fabs(fUtils->getTrackTruePID(track1)) == fUtils->fPdgCodeKaon && 
-	       fabs(fUtils->getTrackTruePID(track2)) == fUtils->fPdgCodeKaon){
-	      
+	       fabs(fUtils->getTrackTruePID(track2)) == fUtils->fPdgCodeKaon){	      
 	      if( track1->Charge() != track2->Charge() ){
 		fHistULSKKPairMassPt_FromSameSource->Fill(t12.M(),t12.Pt());			
 		
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1270){
+		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodePhi){
+		  fHistULSKKPairMassPt_FromPhi->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0s){
+		  fHistULSKKPairMassPt_FromK0s->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeEta){
+		  fHistULSKKPairMassPt_FromEta->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeEtaPrime){
+		  fHistULSKKPairMassPt_FromEtaPrime->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeRho){
+		  fHistULSKKPairMassPt_FromRho->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeOmega){
+		  fHistULSKKPairMassPt_FromOmega->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0star){
+		  fHistULSKKPairMassPt_FromK0star->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF980){
+		  fHistULSKKPairMassPt_FromF980->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1270){
 		  fHistULSKKPairMassPt_FromF1270->Fill(t12.M(),t12.Pt());
 		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1370){
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1370){
 		  fHistULSKKPairMassPt_FromF1370->Fill(t12.M(),t12.Pt());
 		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1525){
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1525){
 		  fHistULSKKPairMassPt_FromF1525->Fill(t12.M(),t12.Pt());
 		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1500){
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1500){
 		  fHistULSKKPairMassPt_FromF1500->Fill(t12.M(),t12.Pt());
 		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1710){
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1710){
 		  fHistULSKKPairMassPt_FromF1710->Fill(t12.M(),t12.Pt());
+		}		
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeLambda1520){
+		  fHistULSKKPairMassPt_FromLambda1520->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK01430){
+		  fHistULSKKPairMassPt_FromK01430->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeKp1430){
+		  fHistULSKKPairMassPt_FromKp1430->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXi0star1530){
+		  fHistULSKKPairMassPt_FromXi0star1530->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXi01820){
+		  fHistULSKKPairMassPt_FromXi01820->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXip1820){
+		  fHistULSKKPairMassPt_FromXip1820->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeSigmastarp1385){
+		  fHistULSKKPairMassPt_FromSigmastarp1385->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeSigmastarm1385){
+		  fHistULSKKPairMassPt_FromSigmastarm1385->Fill(t12.M(),t12.Pt());
+		}
+
+
+		else {
+
 		}
 	      }	      
 	      else {
@@ -758,34 +1391,82 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
 		}
 	      }	      
 	    }//fabs(fUtils->getTrackTruePID(track1)) == fUtils->fPdgCodeKaon
-	    else{
-	      
-	      if( track1->Charge() != track2->Charge() ){
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeRho){
+	    else{	      
+	      if( track1->Charge() != track2->Charge() ){		
+		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodePhi){
+		  fHistULSKKPairMassPt_FromPhi_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0s){
+		  fHistULSKKPairMassPt_FromK0s_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeEta){
+		  fHistULSKKPairMassPt_FromEta_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeEtaPrime){
+		  fHistULSKKPairMassPt_FromEtaPrime_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeRho){
 		  fHistULSKKPairMassPt_FromRho_MisID->Fill(t12.M(),t12.Pt());
 		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeOmega){
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeOmega){
 		  fHistULSKKPairMassPt_FromOmega_MisID->Fill(t12.M(),t12.Pt());
 		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF980){
-		  fHistULSKKPairMassPt_FromF980_MisID->Fill(t12.M(),t12.Pt());
-		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1270){
-		  fHistULSKKPairMassPt_FromF1270_MisID->Fill(t12.M(),t12.Pt());
-		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0star){
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0star){
 		  fHistULSKKPairMassPt_FromK0star_MisID->Fill(t12.M(),t12.Pt());
 		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF980){
+		  fHistULSKKPairMassPt_FromF980_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1270){
+		  fHistULSKKPairMassPt_FromF1270_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1370){
+		  fHistULSKKPairMassPt_FromF1370_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1525){
+		  fHistULSKKPairMassPt_FromF1525_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1500){
+		  fHistULSKKPairMassPt_FromF1500_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1710){
+		  fHistULSKKPairMassPt_FromF1710_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeLambda1520){
+		  fHistULSKKPairMassPt_FromLambda1520_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK01430){
+		  fHistULSKKPairMassPt_FromK01430_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeKp1430){
+		  fHistULSKKPairMassPt_FromKp1430_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXi0star1530){
+		  fHistULSKKPairMassPt_FromXi0star1530_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXi01820){
+		  fHistULSKKPairMassPt_FromXi01820_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXip1820){
+		  fHistULSKKPairMassPt_FromXip1820_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeSigmastarp1385){
+		  fHistULSKKPairMassPt_FromSigmastarp1385_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeSigmastarm1385){
+		  fHistULSKKPairMassPt_FromSigmastarm1385_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else {
 
+		}
 	      }
 	    }
 	    
 	  }//fUtils->isSameMother(track1,track2)
 	}//fIsMC
 
-
       }
-
+      
       if(fOnPionAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kPion) && fUtils->isAcceptPrimeTrack(track2,AliPID::kPion)){
 	
 	t1.SetPtEtaPhiM(track1->Pt(),track1->Eta(),track1->Phi(),fUtils->fMassPion);
@@ -806,43 +1487,170 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
 	  }
 	}       
 
-
 	if(fIsMC){
-	  if(fabs(fUtils->isSameMother(track1,track2))>100){	    
+	  if(fabs(fUtils->isSameMother(track1,track2))>100 && fUtils->isDiquarkOrigin(fUtils->isSameMother(track1,track2))==false ){	    
+	    
 	    if(fabs(fUtils->getTrackTruePID(track1)) == fUtils->fPdgCodePion && 
-	       fabs(fUtils->getTrackTruePID(track2)) == fUtils->fPdgCodePion){
-	      
-	      if( track1->Charge() != track2->Charge() ){		
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeOmega){
-		  fHistULSPiPiPairMassPt_FromOmega->Fill(t12.M(),t12.Pt());
+	       fabs(fUtils->getTrackTruePID(track2)) == fUtils->fPdgCodePion){	      
+	      if( track1->Charge() != track2->Charge() ){
+		fHistULSPiPiPairMassPt_FromSameSource->Fill(t12.M(),t12.Pt());			
+		
+		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodePhi){
+		  fHistULSPiPiPairMassPt_FromPhi->Fill(t12.M(),t12.Pt());
 		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeRho){
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0s){
+		  fHistULSPiPiPairMassPt_FromK0s->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeEta){
+		  fHistULSPiPiPairMassPt_FromEta->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeEtaPrime){
+		  fHistULSPiPiPairMassPt_FromEtaPrime->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeRho){
 		  fHistULSPiPiPairMassPt_FromRho->Fill(t12.M(),t12.Pt());
 		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF980){
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeOmega){
+		  fHistULSPiPiPairMassPt_FromOmega->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0star){
+		  fHistULSPiPiPairMassPt_FromK0star->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF980){
 		  fHistULSPiPiPairMassPt_FromF980->Fill(t12.M(),t12.Pt());
 		}
-		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1270){
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1270){
 		  fHistULSPiPiPairMassPt_FromF1270->Fill(t12.M(),t12.Pt());
 		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1370){
+		  fHistULSPiPiPairMassPt_FromF1370->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1525){
+		  fHistULSPiPiPairMassPt_FromF1525->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1500){
+		  fHistULSPiPiPairMassPt_FromF1500->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1710){
+		  fHistULSPiPiPairMassPt_FromF1710->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeLambda1520){
+		  fHistULSPiPiPairMassPt_FromLambda1520->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK01430){
+		  fHistULSPiPiPairMassPt_FromK01430->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeKp1430){
+		  fHistULSPiPiPairMassPt_FromKp1430->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXi0star1530){
+		  fHistULSPiPiPairMassPt_FromXi0star1530->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXi01820){
+		  fHistULSPiPiPairMassPt_FromXi01820->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXip1820){
+		  fHistULSPiPiPairMassPt_FromXip1820->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeSigmastarp1385){
+		  fHistULSPiPiPairMassPt_FromSigmastarp1385->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeSigmastarm1385){
+		  fHistULSPiPiPairMassPt_FromSigmastarm1385->Fill(t12.M(),t12.Pt());
+		}
+		else {
+
+		}
 	      }	      
-	    
-	    }//fabs(fUtils->getTrackTruePID(track1)) == fUtils->fPdgCodePion
-	    else{
-	      if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0star){
-		fHistULSPiPiPairMassPt_FromK0star_MisID->Fill(t12.M(),t12.Pt());
+	      else {
+		if( track1->Charge()>0 ){
+		  fHistLSppPiPiPairMassPt_FromSameSource->Fill(t12.M(),t12.Pt());
+		}
+		else{
+		  fHistLSmmPiPiPairMassPt_FromSameSource->Fill(t12.M(),t12.Pt());
+		}
+	      }	      
+	    }//fabs(fUtils->getTrackTruePID(track1)) == fUtils->fPdgCodeKaon
+	    else{	      
+	      if( track1->Charge() != track2->Charge() ){		
+		if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodePhi){
+		  fHistULSPiPiPairMassPt_FromPhi_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0s){
+		  fHistULSPiPiPairMassPt_FromK0s_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeEta){
+		  fHistULSPiPiPairMassPt_FromEta_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeEtaPrime){
+		  fHistULSPiPiPairMassPt_FromEtaPrime_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeRho){
+		  fHistULSPiPiPairMassPt_FromRho_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeOmega){
+		  fHistULSPiPiPairMassPt_FromOmega_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK0star){
+		  fHistULSPiPiPairMassPt_FromK0star_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF980){
+		  fHistULSPiPiPairMassPt_FromF980_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1270){
+		  fHistULSPiPiPairMassPt_FromF1270_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1370){
+		  fHistULSPiPiPairMassPt_FromF1370_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1525){
+		  fHistULSPiPiPairMassPt_FromF1525_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1500){
+		  fHistULSPiPiPairMassPt_FromF1500_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeF1710){
+		  fHistULSPiPiPairMassPt_FromF1710_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeLambda1520){
+		  fHistULSPiPiPairMassPt_FromLambda1520_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeK01430){
+		  fHistULSPiPiPairMassPt_FromK01430_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeKp1430){
+		  fHistULSPiPiPairMassPt_FromKp1430_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXi0star1530){
+		  fHistULSPiPiPairMassPt_FromXi0star1530_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXi01820){
+		  fHistULSPiPiPairMassPt_FromXi01820_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeXip1820){
+		  fHistULSPiPiPairMassPt_FromXip1820_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeSigmastarp1385){
+		  fHistULSPiPiPairMassPt_FromSigmastarp1385_MisID->Fill(t12.M(),t12.Pt());
+		}
+		else if(fabs(fUtils->isSameMother(track1,track2)) == fUtils->fPdgCodeSigmastarm1385){
+		  fHistULSPiPiPairMassPt_FromSigmastarm1385_MisID->Fill(t12.M(),t12.Pt());
+		}		
+		else {
+
+		}
 	      }
 	    }
+	    
 	  }//fUtils->isSameMother(track1,track2)
 	}//fIsMC
       }
       
-
     }//end of loop track2
     
     if(fOnKaonAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kKaon)){
       
-      if (poolKaon->IsReady()){
+      if (fOnME && poolKaon->IsReady()){
       
 	for (Int_t iMixEvt=0; iMixEvt<poolKaon->GetCurrentNEvents(); iMixEvt++){
 
@@ -878,7 +1686,7 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
     
     if(fOnPionAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kPion)){
 
-      if (poolPion->IsReady()){
+      if (fOnME && poolPion->IsReady()){
       
 	for (Int_t iMixEvt=0; iMixEvt<poolPion->GetCurrentNEvents(); iMixEvt++){
 
@@ -912,11 +1720,11 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
       }//poolPionon->IsReady()    
     }//if(fUtils->isAcceptPrimeTrack(track1,AliPID::kPion))
     
-    if(fOnKaonAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kKaon)){      
+    if(fOnME && fOnKaonAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kKaon)){      
       fKaonTrackArray->Add(track1);
     }
 
-    if(fOnPionAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kPion)){            
+    if(fOnME && fOnPionAna && fUtils->isAcceptPrimeTrack(track1,AliPID::kPion)){            
       fPionTrackArray->Add(track1);
     }
   }//end of loop track1
@@ -924,7 +1732,7 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
   TObjArray* fKaonTrackArrayClone = NULL;
   TObjArray* fPionTrackArrayClone = NULL;
   
-  if(fOnKaonAna){
+  if(fOnME && fOnKaonAna){
     fKaonTrackArrayClone = (TObjArray*)fKaonTrackArray->Clone();
     fKaonTrackArrayClone->SetOwner();
     //cout<<"       This event stores  "<<fKaonTrackArrayClone->GetEntriesFast()<<endl;
@@ -933,7 +1741,7 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
     }
   }
   
-  if(fOnPionAna){
+  if(fOnME && fOnPionAna){
     fPionTrackArrayClone = (TObjArray*)fPionTrackArray->Clone();
     fPionTrackArrayClone->SetOwner();
     //cout<<"       This event stores  "<<fPionTrackArrayClone->GetEntriesFast()<<endl;
@@ -941,26 +1749,43 @@ bool AliAnalysisTaskAODTrackPair::PrimeTrackPairAnalysis(){
       poolPion->UpdatePool(fPionTrackArrayClone);
     }  
   }
-  
-  //delete fKaonTrackArray;
-  //delete fPionTrackArray;
  
   return true;
 }
 
 bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
 { 
-  /*
+
+  
   TObjArray* fTrackArray = new TObjArray();
   fTrackArray -> SetOwner();
 
-  AliEventPool* pool = setPool(2);  
+  float poolCent=0.;
+  float poolVtxZ=0.;
+  float poolPsi=0.;
+
+  if(onEvtMixingPoolVtxZ) poolVtxZ=fUtils->getVtxZ();
+  if(onEvtMixingPoolCent) poolCent=fUtils->getCentClass();
+  if(onEvtMixingPoolPsi) poolPsi=fUtils->getPsi(); 
+
+  AliEventPool* pool = NULL;  
+  pool = (AliEventPool*)fPoolK0sMgr -> GetEventPool(poolCent,poolVtxZ,poolPsi);
+  
+
+  AliAODv0 *v0_1 = NULL;
+  AliAODv0 *v0_2 = NULL;
+
+  TLorentzVector k1;
+  TLorentzVector k2;
+  TLorentzVector k12;      
+
+  TObjArray* poolTracks = NULL;
 
   int nV0Pair = fEvent->GetNumberOfV0s();
 
   for(int iV0=0; iV0<nV0Pair; ++iV0){
     
-    AliAODv0 *v0_1 = fEvent->GetV0(iV0);
+    v0_1 = fEvent->GetV0(iV0);
 
     if( !fUtils->isAcceptDefaultV0(v0_1) ) continue;
     
@@ -976,7 +1801,7 @@ bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
 
     for(int jV0=iV0+1; jV0<nV0Pair; ++jV0){
     
-      AliAODv0 *v0_2 = fEvent->GetV0(jV0);
+      v0_2 = fEvent->GetV0(jV0);
     
       if( !fUtils->isAcceptDefaultV0(v0_2) ) continue;
       if( !fUtils->isK0sV0(v0_2) ) continue;
@@ -984,44 +1809,37 @@ bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
       if( !fUtils->isK0sCandidate(v0_1->MassK0Short()) ) continue;
       if( !fUtils->isK0sCandidate(v0_2->MassK0Short()) ) continue;
       
-      TLorentzVector k1;
-      TLorentzVector k2;      
       k1.SetPtEtaPhiM(v0_1->Pt(),v0_1->Eta(),v0_1->Phi(),fUtils->fMassK0s);
       k2.SetPtEtaPhiM(v0_2->Pt(),v0_2->Eta(),v0_2->Phi(),fUtils->fMassK0s);
       
-      TLorentzVector k12 = k1 + k2;
+      k1 + k2;
 
       double fill_12[]={k12.M(),k12.Pt(),fUtils->getCentClass()};
       fHistK0sK0sMassPt->Fill(k12.M(),k12.Pt());
-
+      
     }
-
+    
     if (pool->IsReady()){
 
       for (Int_t iMixEvt=0; iMixEvt<pool->GetCurrentNEvents(); iMixEvt++){
 
-	TObjArray* poolTracks = (TObjArray*)pool->GetEvent(iMixEvt);	
+	poolTracks = (TObjArray*)pool->GetEvent(iMixEvt);	
 
 	for(Int_t iV02=0; iV02<poolTracks->GetEntriesFast(); ++iV02){
 
-	  AliAODv0* __v0_2__ = (AliAODv0*)poolTracks->At(iV02);
-	  AliAODv0* v0_2 = (AliAODv0*)__v0_2__->Clone();
+	  v0_2 = (AliAODv0*)poolTracks->At(iV02);
 
 	  if( !fUtils->isK0sCandidate(v0_1->MassK0Short()) ) continue;
 	  if( !fUtils->isK0sCandidate(v0_2->MassK0Short()) ) continue;
 
-	  TLorentzVector k1;
-	  TLorentzVector k2;      
 	  k1.SetPtEtaPhiM(v0_1->Pt(),v0_1->Eta(),v0_1->Phi(),fUtils->fMassK0s);
 	  k2.SetPtEtaPhiM(v0_2->Pt(),v0_2->Eta(),v0_2->Phi(),fUtils->fMassK0s);
-      
-	  TLorentzVector k12 = k1 + k2;
+
+	  k12 = k1 + k2;
 
 	  double fill_12[]={k12.M(),k12.Pt(),fUtils->getCentClass()};
 	  fHistMixK0sK0sMassPt->Fill(k12.M(),k12.Pt());
-	  
-	  delete v0_2;
-	  
+
 	}//end of loop track2
       }// end of loop iMixEvt
     
@@ -1029,14 +1847,12 @@ bool AliAnalysisTaskAODTrackPair::V0TrackPairAnalysis()
     
     fTrackArray->Add(v0_1);
   }
-
+  
   TObjArray* fTrackArrayClone = (TObjArray*)fTrackArray->Clone();
   fTrackArrayClone->SetOwner();
   if(fTrackArrayClone->GetEntriesFast()>0){
     pool->UpdatePool(fTrackArrayClone);
   }
   
-  delete fTrackArray;
-  */
   return true;
 }

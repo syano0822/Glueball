@@ -501,33 +501,149 @@ int AliAnalysisTaskAODTrackPairUtils::getTrackTruePID(AliAODTrack* track1)
 
 }
 
+double AliAnalysisTaskAODTrackPairUtils::getTOFSigma(AliAODTrack* track1,AliPID::EParticleType pid)
+{
+  return fPIDResponse->NumberOfSigmasTOF(track1,pid);
+}
+double AliAnalysisTaskAODTrackPairUtils::getTPCSigma(AliAODTrack* track1,AliPID::EParticleType pid)
+{
+  return fPIDResponse->NumberOfSigmasTPC(track1,pid);
+}
+
+double AliAnalysisTaskAODTrackPairUtils::getMotherPt(AliAODTrack* track1)
+{
+  if(!track1) return -999;
+
+  int label1 = track1->GetLabel();
+
+  if(label1<1) return -999;
+
+  AliAODMCParticle *particle1 = (AliAODMCParticle*)fMCArray->At(label1);
+  if(!particle1) return -999;
+  
+  int mom_label1 = particle1->GetMother();
+
+  if(mom_label1<1) return -999;
+  
+  AliAODMCParticle *mom_particle = (AliAODMCParticle*)fMCArray->At(mom_label1);
+  if(!mom_particle) return -999;
+
+  return mom_particle->Pt();
+
+
+}
+
+bool AliAnalysisTaskAODTrackPairUtils::isDiquarkOrigin(int pdgcode)
+{
+  
+  if(pdgcode==1103){
+    return true;
+  }
+  else if(pdgcode==2101){
+    return true;
+  }
+  else if(pdgcode==2103){
+    return true;
+  }
+  else if(pdgcode==2203){
+    return true;
+  }
+  else if(pdgcode==3101){
+    return true;
+  }
+  else if(pdgcode==3103){
+    return true;
+  }
+  else if(pdgcode==3201){
+    return true;
+  }
+  else if(pdgcode==3203){
+    return true;
+  }
+  else if(pdgcode==3303){
+    return true;
+  }
+  else if(pdgcode==4101){
+    return true;
+  }
+  else if(pdgcode==4103){
+    return true;
+  }
+  else if(pdgcode==4201){
+    return true;
+  }
+  else if(pdgcode==4203){
+    return true;
+  }
+  else if(pdgcode==4301){
+    return true;
+  }
+  else if(pdgcode==4303){
+    return true;
+  }
+  else if(pdgcode==4403){
+    return true;
+  }
+  else if(pdgcode==5101){
+    return true;
+  }
+  else if(pdgcode==5103){
+    return true;
+  }
+  else if(pdgcode==5201){
+    return true;
+  }
+  else if(pdgcode==5203){
+    return true;
+  }
+  else if(pdgcode==5301){
+    return true;
+  }
+  else if(pdgcode==5303){
+    return true;
+  }
+  else if(pdgcode==5401){
+    return true;
+  }
+  else if(pdgcode==5403){
+    return true;
+  }
+  else if(pdgcode==5503){
+    return true;
+  }
+  else{
+    return false;
+  }
+  
+}
+
 int AliAnalysisTaskAODTrackPairUtils::isSameMother(AliAODTrack* track1, AliAODTrack* track2)
 {
   
-  if(!track1) return -999;
-  if(!track2) return -999;
+  if(!track1) return 0;
+  if(!track2) return 0;
 
   int label1 = track1->GetLabel();
   int label2 = track2->GetLabel();
 
-  if(label1<1) return -999;
-  if(label2<1) return -999;
+  if(label1<1) return 0;
+  if(label2<1) return 0;
 
   AliAODMCParticle *particle1 = (AliAODMCParticle*)fMCArray->At(label1);
   AliAODMCParticle *particle2 = (AliAODMCParticle*)fMCArray->At(label2);
-  if(!particle1) return -999;
-  if(!particle2) return -999;
+  if(!particle1) return 0;
+  if(!particle2) return 0;
   
   int mom_label1 = particle1->GetMother();
   int mom_label2 = particle2->GetMother();
 
-  if(mom_label1<1) return -999;
-  if(mom_label2<1) return -999;
+  if(mom_label1<1) return 0;
+  if(mom_label2<1) return 0;
 
-  if(mom_label1 != mom_label2) return -999;
+  if(mom_label1 != mom_label2) return 0;
   
   AliAODMCParticle *mom_particle = (AliAODMCParticle*)fMCArray->At(mom_label1);
-  if(!mom_particle) return -999;
+  if(!mom_particle) return 0;
 
   return mom_particle->GetPdgCode();
 }

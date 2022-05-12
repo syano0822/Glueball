@@ -104,11 +104,13 @@ AliAnalysisTaskAODTrackPair* AddTaskAODTrackPair(bool isMC=false,UInt_t offlineT
   task->setEvtMixingPoolVtxZ(true);
   task->setEvtMixingPoolCent(true);
   task->setEvtMixingPoolPsi(true);
-  task->setKaonAnalysis(true);
+  task->setKaonAnalysis(false);
   task->setPionAnalysis(false);
   task->setK0sAnalysis(false);
   task->setTrackQA(false);
+  task->setMLSample(true);
   task->setMC(isMC);
+  task->setME(false);
   mgr->AddTask(task);
 
   AliAnalysisDataContainer *cinput  = mgr->GetCommonInputContainer();

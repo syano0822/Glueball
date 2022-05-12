@@ -249,14 +249,13 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
     plugin->SetRunPrefix("000");    
   }
 
-  else if(type == "LHC17l4_cent_woSDD_lastG4fix"){
-    plugin->SetGridDataDir("/alice/sim/2017/LHC17l4_cent_woSDD_lastG4fix");
-    plugin->SetDataPattern("/AOD235/ AliAOD.root");
+  else if(type == "LHC21j1a_cent_woSDD"){
+    plugin->SetGridDataDir("/alice/sim/2021/LHC21j1a_cent_woSDD");
+    plugin->SetDataPattern("/AOD/ AliAOD.root");
   }
-
-  else if(type == "LHC17l4_FAST_lastG4fix"){
-    plugin->SetGridDataDir("/alice/sim/2017/LHC17l4_cent_woSDD_lastG4fix");
-    plugin->SetDataPattern("/AOD235/ AliAOD.root");
+  else if(type == "LHC21j1a_fast"){
+    plugin->SetGridDataDir("/alice/sim/2021/LHC21j1a_fast");
+    plugin->SetDataPattern("/AOD/ AliAOD.root");
   }
   
   else if(type == "LHC20g14a"){
@@ -302,7 +301,7 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
     plugin->AddRunNumber(282031); plugin->AddRunNumber(282030); plugin->AddRunNumber(282025); plugin->AddRunNumber(282021); plugin->AddRunNumber(282016); plugin->AddRunNumber(282008);
  }
 
-  if(runPeriod.Contains("LHC17p_woSDD")){//p-p 5 TeV
+  if(runPeriod.Contains("LHC17p_woSDD_No1")){//p-p 5 TeV
     plugin->SetNrunsPerMaster(4);
     plugin->AddRunNumber(282343); plugin->AddRunNumber(282342); plugin->AddRunNumber(282341); plugin->AddRunNumber(282340); plugin->AddRunNumber(282314); plugin->AddRunNumber(282313); 
     plugin->AddRunNumber(282312); plugin->AddRunNumber(282309); plugin->AddRunNumber(282307); plugin->AddRunNumber(282306); plugin->AddRunNumber(282305); plugin->AddRunNumber(282304); 
@@ -315,7 +314,7 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
   if(runPeriod.Contains("LHC17p_woSDD_No2")){//p-p 5 TeV
     plugin->AddRunNumber(282099);
   }
-  
+
 
   if(runPeriod.Contains("LHC16q")){//p-Pb 5 TeV
     plugin->SetNrunsPerMaster(4);
@@ -344,7 +343,7 @@ AliAnalysisGrid* CreateAlienHandler(TString runPeriod, TString run_mode, Bool_t 
   plugin->SetExecutable("analysis_syano_"+type+"_"+runPeriod+".sh");
   
   if(type == "data") plugin->SetNtestFiles(2);
-  else               plugin->SetNtestFiles(10);
+  else               plugin->SetNtestFiles(5);
   
   
   

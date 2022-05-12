@@ -17,10 +17,12 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   virtual void   UserExec(Option_t *option);
   
   void setMC(bool isMC){fIsMC = isMC;}
+  void setME(bool flag){fOnME = flag;}
   void setKaonAnalysis(bool flag){fOnKaonAna = flag;}
   void setPionAnalysis(bool flag){fOnPionAna = flag;}
   void setK0sAnalysis(bool flag){fOnK0sAna = flag;}
   void setTrackQA(bool flag){fOnTrackQA = flag;}
+  void setMLSample(bool flag){fOnMLTrainSampleout = flag;}
   
   void setUtils(AliAnalysisTaskAODTrackPairUtils *utils)
   {
@@ -67,9 +69,9 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   bool Initialize();
   bool TrackQA(AliAODTrack *track);
   bool V0TrackPairAnalysis();  
-  bool PrimeTrackPairAnalysis();  
-  
-  AliEventPool* setPool(int id);
+  bool primeTrackPairAnalysis();  
+  bool processMC();
+  bool RegisterTreeForTrackPID();
   
   AliAODEvent    *fEvent;  
   
@@ -81,10 +83,13 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   TClonesArray   *fMCTrackArray;
   
   bool fIsMC;  
+  bool fOnME;
   bool fOnKaonAna;
   bool fOnPionAna;
   bool fOnK0sAna;
   bool fOnTrackQA;
+  bool fOnMLTrainSampleout;
+  bool fOnTrackMLTrainSampleout;
 
   int fRunNumber;
   int fTrackDepth;
@@ -105,6 +110,29 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
 
   TList* fOutputList;
   
+  TTree *fTreeML;
+  float fTrackPt;
+  float fTrackP;
+  float fTrackTheta;
+  float fTrackPhi;
+  float fTrackLength;
+  float fTrackBeta;
+  float fTrackTrackChi2perNDF;
+  float fTrackTrackITSNcls;
+  float fTrackTrackTPCNcls;
+  float fTrackTrackTOFNcls;
+  float fTrackTrackTPCChi2;
+  float fTrackTrackITSChi2;
+  float fTrackTPCCrossedRows;
+  float fTrackTPCFindableNcls;
+  float fTrackTOFBCTime;
+  float fTrackTOFKinkIndex;
+  float fTrackDCAxy;
+  float fTrackDCAz;
+  float fTrackTPCsigmaK;
+  float fTrackTOFsigmaK;
+  bool fTrackTrueKaonLabel;
+
   TH1F* fEventCounter;
 
   TH2F* fHistArmenterosPodolanskiPlot; 
@@ -138,7 +166,6 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   TH2F* fHistK0sK0sMassPt;
   TH2F* fHistMixK0sK0sMassPt;
   
-
   TH2F* fHistPrimaryTrackNSPDCluster;
   TH2F* fHistPrimaryTrackNITSCluster;
   TH2F* fHistPrimaryTrackNTPCCluster;
@@ -190,22 +217,118 @@ class AliAnalysisTaskAODTrackPair : public AliAnalysisTaskSE {
   TH2F* fHistULSKKPairMassPt_FromSameSource;
   TH2F* fHistLSppKKPairMassPt_FromSameSource;
   TH2F* fHistLSmmKKPairMassPt_FromSameSource;
+  
+  TH2F* fHistULSKKPairMassPt_FromPhi;
+  TH2F* fHistULSKKPairMassPt_FromK0s;
+  TH2F* fHistULSKKPairMassPt_FromEta;
+  TH2F* fHistULSKKPairMassPt_FromEtaPrime;
+  TH2F* fHistULSKKPairMassPt_FromRho;
+  TH2F* fHistULSKKPairMassPt_FromOmega;
+  TH2F* fHistULSKKPairMassPt_FromK0star;
+  TH2F* fHistULSKKPairMassPt_FromF980;
   TH2F* fHistULSKKPairMassPt_FromF1270;
   TH2F* fHistULSKKPairMassPt_FromF1370;
   TH2F* fHistULSKKPairMassPt_FromF1500;
   TH2F* fHistULSKKPairMassPt_FromF1525;
-  TH2F* fHistULSKKPairMassPt_FromF1710;  
+  TH2F* fHistULSKKPairMassPt_FromF1710;
+  TH2F* fHistULSKKPairMassPt_FromPhi_MisID;
+  TH2F* fHistULSKKPairMassPt_FromK0s_MisID;
+  TH2F* fHistULSKKPairMassPt_FromEta_MisID;
+  TH2F* fHistULSKKPairMassPt_FromEtaPrime_MisID;
   TH2F* fHistULSKKPairMassPt_FromRho_MisID;
   TH2F* fHistULSKKPairMassPt_FromOmega_MisID;
   TH2F* fHistULSKKPairMassPt_FromK0star_MisID;
   TH2F* fHistULSKKPairMassPt_FromF980_MisID;
   TH2F* fHistULSKKPairMassPt_FromF1270_MisID;
-  
-  TH2F* fHistULSPiPiPairMassPt_FromOmega;
+  TH2F* fHistULSKKPairMassPt_FromF1370_MisID;
+  TH2F* fHistULSKKPairMassPt_FromF1500_MisID;
+  TH2F* fHistULSKKPairMassPt_FromF1525_MisID;
+  TH2F* fHistULSKKPairMassPt_FromF1710_MisID;
+     
+  TH2F* fHistULSKKPairMassPt_FromLambda1520;
+  TH2F* fHistULSKKPairMassPt_FromK01430;
+  TH2F* fHistULSKKPairMassPt_FromKp1430;
+  TH2F* fHistULSKKPairMassPt_FromXi0star1530;
+  TH2F* fHistULSKKPairMassPt_FromXi01820;
+  TH2F* fHistULSKKPairMassPt_FromXip1820;
+  TH2F* fHistULSKKPairMassPt_FromSigmastarp1385;
+  TH2F* fHistULSKKPairMassPt_FromSigmastarm1385;
+  TH2F* fHistULSKKPairMassPt_FromLambda1520_MisID;
+  TH2F* fHistULSKKPairMassPt_FromK01430_MisID;
+  TH2F* fHistULSKKPairMassPt_FromKp1430_MisID;
+  TH2F* fHistULSKKPairMassPt_FromXi0star1530_MisID;
+  TH2F* fHistULSKKPairMassPt_FromXi01820_MisID;
+  TH2F* fHistULSKKPairMassPt_FromXip1820_MisID;
+  TH2F* fHistULSKKPairMassPt_FromSigmastarp1385_MisID;
+  TH2F* fHistULSKKPairMassPt_FromSigmastarm1385_MisID;
+
+  TH2F* fHistULSPiPiPairMassPt_FromSameSource;
+  TH2F* fHistLSppPiPiPairMassPt_FromSameSource;
+  TH2F* fHistLSmmPiPiPairMassPt_FromSameSource;
+
+  TH2F* fHistULSPiPiPairMassPt_FromPhi;
+  TH2F* fHistULSPiPiPairMassPt_FromK0s;
+  TH2F* fHistULSPiPiPairMassPt_FromEta;
+  TH2F* fHistULSPiPiPairMassPt_FromEtaPrime;
   TH2F* fHistULSPiPiPairMassPt_FromRho;
+  TH2F* fHistULSPiPiPairMassPt_FromOmega;
+  TH2F* fHistULSPiPiPairMassPt_FromK0star;
   TH2F* fHistULSPiPiPairMassPt_FromF980;
   TH2F* fHistULSPiPiPairMassPt_FromF1270;
+  TH2F* fHistULSPiPiPairMassPt_FromF1370;
+  TH2F* fHistULSPiPiPairMassPt_FromF1500;
+  TH2F* fHistULSPiPiPairMassPt_FromF1525;
+  TH2F* fHistULSPiPiPairMassPt_FromF1710;
+  TH2F* fHistULSPiPiPairMassPt_FromPhi_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromK0s_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromEta_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromEtaPrime_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromRho_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromOmega_MisID;
   TH2F* fHistULSPiPiPairMassPt_FromK0star_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromF980_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromF1270_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromF1370_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromF1500_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromF1525_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromF1710_MisID;
+  
+  TH2F* fHistULSPiPiPairMassPt_FromLambda1520;
+  TH2F* fHistULSPiPiPairMassPt_FromK01430;
+  TH2F* fHistULSPiPiPairMassPt_FromKp1430;
+  TH2F* fHistULSPiPiPairMassPt_FromXi0star1530;
+  TH2F* fHistULSPiPiPairMassPt_FromXi01820;
+  TH2F* fHistULSPiPiPairMassPt_FromXip1820;
+  TH2F* fHistULSPiPiPairMassPt_FromSigmastarp1385;
+  TH2F* fHistULSPiPiPairMassPt_FromSigmastarm1385;
+  TH2F* fHistULSPiPiPairMassPt_FromLambda1520_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromK01430_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromKp1430_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromXi0star1530_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromXi01820_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromXip1820_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromSigmastarp1385_MisID;
+  TH2F* fHistULSPiPiPairMassPt_FromSigmastarm1385_MisID;
+
+
+  TH1F* fHistRhoMassTrue;
+  TH1F* fHistPhiMassTrue;
+  TH1F* fHistF980MassTrue;
+  TH1F* fHistF1270MassTrue;
+  TH1F* fHistK0sMassTrue;
+
+  TH1F* fHistPhiPtTrue;
+  TH1F* fHistEtaPtTrue;
+  TH1F* fHistEtaPrimePtTrue;
+  TH1F* fHistRhoPtTrue;
+  TH1F* fHistOmegaPtTrue;
+  TH1F* fHistK0sPtTrue;
+  TH1F* fHistK0starPtTrue;
+  TH1F* fHistF980PtTrue;
+  TH1F* fHistF1270PtTrue;
+  TH1F* fHistF1500PtTrue;
+  TH1F* fHistF1525PtTrue;
+  TH1F* fHistF1710PtTrue;
 
   ClassDef(AliAnalysisTaskAODTrackPair, 1); // example of analysis
 };
